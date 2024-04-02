@@ -25,6 +25,12 @@ spring:
         trace: false
         web-allow-others: false
 
-#  server:
-#    error:
-#      include-stacktrace: never
+server:
+
+  error:
+    include-stacktrace: never
+
+api:
+  security:
+    token:
+      secret: vasco-da-gama
