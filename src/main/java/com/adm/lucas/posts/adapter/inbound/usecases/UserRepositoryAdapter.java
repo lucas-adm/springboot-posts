@@ -8,10 +8,11 @@ import com.adm.lucas.posts.infra.security.TokenService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +33,14 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         if (optionalEntity.isPresent()) {
             UserEntity entity = optionalEntity.get();
             if (entity.getId() != user.getId()) {
-                throw new DataIntegrityViolationException("Email or username are unavailable.");
+                throw new RuntimeException("Email or username are unavailable.");
             }
         }
         UserEntity entity = modelMapper.map(user, UserEntity.class);
+        int age = Period.between(user.getBirthDate(), LocalDate.now()).getYears();
+        if (age < 12) {
+            throw new RuntimeException("User must be at least 12 years old.");
+        }
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         repository.save(entity);
     }
@@ -73,7 +78,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         UserEntity entity = repository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
         boolean matches = passwordEncoder.matches(password, entity.getPassword());
         if (!matches) {
-            throw new RuntimeException("Fz o L");
+            throw new RuntimeException("Invalid password.");
         }
         return tokenService.generateToken(entity);
     }
