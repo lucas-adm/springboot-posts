@@ -1,11 +1,11 @@
-package com.adm.lucas.posts.adapter.inbound.dtos.in;
+package com.adm.lucas.posts.adapter.inbound.dtos.in.user;
 
+import com.adm.lucas.posts.core.domain.User;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
-public record UserUpdateDTO(
+public record UserRegisterDTO(
         @NotBlank(message = "cannot be blank")
         @Email(message = "must be a valid email.")
         String email,
@@ -19,9 +19,14 @@ public record UserUpdateDTO(
         @Size(min = 4, max = 33, message = "size must have between 4 and 33 characters.")
         String password,
 
-        Optional<String> photo,
+        String photo,
 
         @NotNull(message = "cannot be null")
         @Past(message = "must be a valid date")
         LocalDate birthDate) {
+
+    public User toUser() {
+        return new User(email, username, password, photo, birthDate);
+    }
+
 }

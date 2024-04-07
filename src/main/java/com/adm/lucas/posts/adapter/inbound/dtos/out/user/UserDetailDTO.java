@@ -1,4 +1,4 @@
-package com.adm.lucas.posts.adapter.inbound.dtos.out;
+package com.adm.lucas.posts.adapter.inbound.dtos.out.user;
 
 import java.util.Optional;
 

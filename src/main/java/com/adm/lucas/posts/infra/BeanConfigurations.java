@@ -1,7 +1,10 @@
 package com.adm.lucas.posts.infra;
 
+import com.adm.lucas.posts.core.ports.repositories.PostRepositoryPort;
 import com.adm.lucas.posts.core.ports.repositories.UserRepositoryPort;
+import com.adm.lucas.posts.core.ports.services.PostServicePort;
 import com.adm.lucas.posts.core.ports.services.UserServicePort;
+import com.adm.lucas.posts.core.usecases.PostServiceImpl;
 import com.adm.lucas.posts.core.usecases.UserServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +21,11 @@ public class BeanConfigurations {
     @Bean
     public UserServicePort userServicePort(UserRepositoryPort userRepositoryPort) {
         return new UserServiceImpl(userRepositoryPort);
+    }
+
+    @Bean
+    public PostServicePort postServicePort(PostRepositoryPort postRepositoryPort) {
+        return new PostServiceImpl(postRepositoryPort);
     }
 
 }

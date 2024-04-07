@@ -15,13 +15,16 @@ public class ControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         if (ex.getMessage().startsWith("Email or username are unavailable.")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email or username are unavailable.");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Email or username are unavailable.");
         }
         if (ex.getMessage().startsWith("User must be at least 12 years old.")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User must be at least 12 years old.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User must be at least 12 years old.");
         }
         if (ex.getMessage().startsWith("Invalid password.")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid password.");
+        }
+        if (ex.getMessage().startsWith("Only the post user can edit this post.")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only the post user can edit this post.");
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + ex.getMessage());
     }
