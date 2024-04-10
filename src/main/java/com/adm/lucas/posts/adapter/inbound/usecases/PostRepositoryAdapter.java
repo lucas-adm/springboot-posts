@@ -37,7 +37,7 @@ public class PostRepositoryAdapter implements PostRepositoryPort {
 
     @Override
     public Post findPostById(UUID uuid) {
-        return modelMapper.map(repository.findPostById(uuid).orElseThrow(EntityNotFoundException::new), Post.class);
+        return modelMapper.map(repository.findById(uuid).orElseThrow(EntityNotFoundException::new), Post.class);
     }
 
     @Override

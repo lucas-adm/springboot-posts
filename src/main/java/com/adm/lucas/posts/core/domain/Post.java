@@ -2,6 +2,8 @@ package com.adm.lucas.posts.core.domain;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Post {
@@ -12,8 +14,8 @@ public class Post {
     private String text;
     private LocalDateTime datePost = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
     private Status status = Status.OPEN;
-//    private List<Upvote> upvotes = new ArrayList<>();
-//    private List<Comment> comments = new ArrayList<>();
+    private Set<Upvote> upvotes;
+    private List<Comment> comments;
 
     public Post() {
     }
@@ -72,20 +74,20 @@ public class Post {
         this.status = status;
     }
 
-//    public List<Upvote> getUpvotes() {
-//        return upvotes;
-//    }
+    public Set<Upvote> getUpvotes() {
+        return upvotes;
+    }
 
-//    public void setUpvotes(List<Upvote> upvotes) {
-//        this.upvotes = upvotes;
-//    }
+    public void setUpvotes(Set<Upvote> upvotes) {
+        this.upvotes = upvotes;
+    }
 
-//    public List<Comment> getComments() {
-//        return comments;
-//    }
+    public List<Comment> getComments() {
+        return comments;
+    }
 
-//    public void setComments(List<Comment> comments) {
-//        this.comments = comments;
-//    }
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 
 }

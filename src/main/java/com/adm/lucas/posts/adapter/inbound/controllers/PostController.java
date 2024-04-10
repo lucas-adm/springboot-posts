@@ -2,6 +2,7 @@ package com.adm.lucas.posts.adapter.inbound.controllers;
 
 import com.adm.lucas.posts.adapter.inbound.dtos.in.post.PostDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.post.PostDetailDTO;
+import com.adm.lucas.posts.adapter.inbound.dtos.out.post.PostsDTO;
 import com.adm.lucas.posts.core.domain.Post;
 import com.adm.lucas.posts.core.ports.services.PostServicePort;
 import com.auth0.jwt.JWT;
@@ -30,15 +31,15 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostDetailDTO>> allPosts(@RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "datePost") String sortBy, @RequestParam(defaultValue = "desc") String sortOrder) {
+    public ResponseEntity<List<PostsDTO>> allPosts(@RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "datePost") String sortBy, @RequestParam(defaultValue = "desc") String sortOrder) {
         List<Post> posts = servicePort.listPosts(page, size, sortBy, sortOrder);
-        return ResponseEntity.ok(posts.stream().map(PostDetailDTO::new).toList());
+        return ResponseEntity.ok(posts.stream().map(PostsDTO::new).toList());
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<List<PostDetailDTO>> allUserPosts(@PathVariable String username, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "datePost") String sortBy, @RequestParam(defaultValue = "desc") String sortOrder) {
+    public ResponseEntity<List<PostsDTO>> allUserPosts(@PathVariable String username, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "datePost") String sortBy, @RequestParam(defaultValue = "desc") String sortOrder) {
         List<Post> posts = servicePort.listUserPosts(username, page, size, sortBy, sortOrder);
-        return ResponseEntity.ok(posts.stream().map(PostDetailDTO::new).toList());
+        return ResponseEntity.ok(posts.stream().map(PostsDTO::new).toList());
     }
 
     @GetMapping("/post/{uuid}")

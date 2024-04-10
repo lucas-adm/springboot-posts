@@ -1,5 +1,6 @@
 package com.adm.lucas.posts.infra.exceptions;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -26,17 +27,25 @@ public class ControllerAdvice {
         if (ex.getMessage().startsWith("Only the post user can edit this post.")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only the post user can edit this post.");
         }
+        if (ex.getMessage().startsWith("Only the comment user can edit this comment.")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only the comment user can edit this comment.");
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + ex.getMessage());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> uniqueValueAlreadyExists(DataIntegrityViolationException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Data integrity violation.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Data integrity violation: " + ex.getMessage());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> entityNotFound() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<String> entitAlreadyExists(EntityExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Only one upvote per user.");
     }
 
     private record validationError(String field, String message) {
