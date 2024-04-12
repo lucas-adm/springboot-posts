@@ -1,5 +1,6 @@
 package com.adm.lucas.posts.core.usecases;
 
+import com.adm.lucas.posts.core.domain.Role;
 import com.adm.lucas.posts.core.domain.User;
 import com.adm.lucas.posts.core.ports.repositories.UserRepositoryPort;
 import com.adm.lucas.posts.core.ports.services.UserServicePort;
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserServicePort {
 
     @Override
     public List<User> listAll() {
-        return repositoryPort.findAllUsersByActiveTrue();
+        return repositoryPort.findAllByRoleActivated();
     }
 
     @Override
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserServicePort {
     @Override
     public void deactivate(UUID uuid) {
         User user = repositoryPort.findUserById(uuid);
-        user.setActive(false);
+        user.setRole(Role.DEACTIVATED);
         repositoryPort.saveUser(user);
     }
 

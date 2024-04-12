@@ -23,10 +23,9 @@ public record UserRegisterDTO(
 
         @NotNull(message = "cannot be null")
         @Past(message = "must be a valid date")
-        LocalDate birthDate) {
-
+        LocalDate birthDate
+) {
     public User toUser() {
         return new User(email, username, password, photo, birthDate);
     }
-
 }

@@ -31,7 +31,8 @@ public class SecurityConfigurations {
                     req.requestMatchers(HttpMethod.POST, "users/register").permitAll();
                     req.requestMatchers(HttpMethod.POST, "users/login").permitAll();
                     req.requestMatchers(HttpMethod.GET).permitAll();
-                    req.anyRequest().authenticated();
+                    req.requestMatchers(HttpMethod.POST).hasAnyRole("ACTIVATED", "DEMO");
+                    req.anyRequest().hasRole("ACTIVATED");
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

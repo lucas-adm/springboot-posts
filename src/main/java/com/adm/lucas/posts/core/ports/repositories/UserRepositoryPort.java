@@ -15,7 +15,7 @@ public interface UserRepositoryPort {
 
     User findUserById(UUID uuid);
 
-    List<User> findAllUsersByActiveTrue();
+    List<User> findAllByRoleActivated();
 
     void deleteUser(User user);
 

@@ -1,9 +1,7 @@
 package com.adm.lucas.posts.adapter.inbound.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.adm.lucas.posts.core.domain.Role;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,12 +36,15 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private LocalDate birthDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean active;
+    private Role role = Role.ACTIVATED;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        if (this.role == Role.ACTIVATED) return List.of(new SimpleGrantedAuthority("ROLE_ACTIVATED"));
+        else if (this.role == Role.DEMO) return List.of(new SimpleGrantedAuthority("ROLE_DEMO"));
+        else return List.of(new SimpleGrantedAuthority("ROLE_DEACTIVATED"));
     }
 
     @Override

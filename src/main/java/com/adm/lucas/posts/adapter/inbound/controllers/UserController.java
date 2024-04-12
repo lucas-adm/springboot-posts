@@ -6,6 +6,7 @@ import com.adm.lucas.posts.adapter.inbound.dtos.in.user.UserRegisterDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.in.user.UserUpdateDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.user.UserDetailDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.user.UserTokenDTO;
+import com.adm.lucas.posts.adapter.outbound.producers.UserProducer;
 import com.adm.lucas.posts.core.domain.User;
 import com.adm.lucas.posts.core.ports.services.UserServicePort;
 import com.auth0.jwt.JWT;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserServicePort servicePort;
+    private final UserProducer producer;
 
     @Transactional
     @PostMapping("/login")
@@ -52,6 +54,7 @@ public class UserController {
     public ResponseEntity<User> registerUser(@RequestBody @Valid UserRegisterDTO dto, UriComponentsBuilder uriComponentsBuilder) {
         User user = dto.toUser();
         servicePort.register(user);
+        producer.publishMessageEmail(user);
         var uri = uriComponentsBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri();
         return ResponseEntity.created(uri).body(user);
     }
@@ -70,6 +73,13 @@ public class UserController {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.changePhoto(uuid, username, dto.photo());
         return ResponseEntity.accepted().build();
+    }
+
+    @Transactional
+    @DeleteMapping("/deactivate/{uuid}")
+    public ResponseEntity deactivateUser(@PathVariable UUID uuid) {
+        servicePort.deactivate(uuid);
+        return ResponseEntity.noContent().build();
     }
 
     @Transactional

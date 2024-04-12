@@ -12,7 +12,7 @@ public class User {
     private String password;
     private Optional<String> photo;
     private LocalDate birthDate;
-    private Boolean active = true;
+    private Role role = Role.ACTIVATED;
 
     public User() {
     }
@@ -73,12 +73,12 @@ public class User {
         this.birthDate = birthDate;
     }
 
-    public Boolean getActive() {
-        return active;
+    public Role getRole() {
+        return role;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
 }

@@ -2,6 +2,7 @@ package com.adm.lucas.posts.adapter.inbound.usecases;
 
 import com.adm.lucas.posts.adapter.inbound.entities.UserEntity;
 import com.adm.lucas.posts.adapter.inbound.repositories.UserRepository;
+import com.adm.lucas.posts.core.domain.Role;
 import com.adm.lucas.posts.core.domain.User;
 import com.adm.lucas.posts.core.ports.repositories.UserRepositoryPort;
 import com.adm.lucas.posts.infra.security.TokenService;
@@ -48,7 +49,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public User findByUserUsername(String username) {
         UserEntity entity = repository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
-        if (!entity.getActive()) {
+        if (entity.getRole() != Role.ACTIVATED) {
             throw new EntityNotFoundException();
         }
         return modelMapper.map(entity, User.class);
@@ -67,8 +68,8 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public List<User> findAllUsersByActiveTrue() {
-        List<UserEntity> entities = repository.findAllByActiveTrue();
+    public List<User> findAllByRoleActivated() {
+        List<UserEntity> entities = repository.findAllByRoleActivated();
         List<User> users = new ArrayList<>();
         for (UserEntity entity : entities) {
             users.add(modelMapper.map(entity, User.class));
