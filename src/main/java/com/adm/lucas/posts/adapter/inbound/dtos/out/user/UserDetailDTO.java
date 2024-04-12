@@ -1,6 +1,19 @@
 package com.adm.lucas.posts.adapter.inbound.dtos.out.user;
 
-import java.util.Optional;
+import com.adm.lucas.posts.core.domain.User;
 
-public record UserDetailDTO(String email, String username, Optional<String> photo) {
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.UUID;
+
+public record UserDetailDTO(UUID id, String email, String username, Optional<String> photo, String birthDate) {
+    public UserDetailDTO(User user) {
+        this(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getPhoto(),
+                user.getBirthDate().format(DateTimeFormatter.ofPattern("d MMMM, yyyy"))
+        );
+    }
 }

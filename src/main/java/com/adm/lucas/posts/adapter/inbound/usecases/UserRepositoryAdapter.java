@@ -48,6 +48,9 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public User findByUserUsername(String username) {
         UserEntity entity = repository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
+        if (!entity.getActive()) {
+            throw new EntityNotFoundException();
+        }
         return modelMapper.map(entity, User.class);
     }
 
@@ -71,6 +74,11 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
             users.add(modelMapper.map(entity, User.class));
         }
         return users;
+    }
+
+    @Override
+    public void deleteUser(User user) {
+        repository.delete(modelMapper.map(user, UserEntity.class));
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.adm.lucas.posts.core.ports.services.UserServicePort;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,21 +29,26 @@ public class UserServiceImpl implements UserServicePort {
     }
 
     @Override
-    public void edit(UUID uuid, String email, String username, String password, Optional<String> photo, LocalDate birthDate) {
+    public void edit(UUID uuid, String username, String newEmail, String newUsername, String newPassword, LocalDate newBirthDate) {
         User user = repositoryPort.findUserById(uuid);
-        user.setEmail(email);
-        user.setUsername(username);
-        user.setPassword(password);
-        if (photo.isPresent()) {
-            user.setPhoto(photo);
+        if (!Objects.equals(user.getUsername(), username)) {
+            throw new RuntimeException("Only the user owner can edit this account.");
         }
-        user.setBirthDate(birthDate);
+        user.setEmail(newEmail);
+        user.setUsername(newUsername);
+        user.setPassword(newPassword);
+        user.setBirthDate(newBirthDate);
         repositoryPort.saveUser(user);
     }
 
     @Override
-    public User detail(UUID uuid) {
-        return repositoryPort.findUserById(uuid);
+    public void changePhoto(UUID uuid, String username, String photo) {
+        User user = repositoryPort.findUserById(uuid);
+        if (!Objects.equals(user.getUsername(), username)) {
+            throw new RuntimeException("Only the user owner can edit this account.");
+        }
+        user.setPhoto(Optional.ofNullable(photo));
+        repositoryPort.saveUser(user);
     }
 
     @Override
@@ -51,10 +57,24 @@ public class UserServiceImpl implements UserServicePort {
     }
 
     @Override
+    public User findByUsername(String username) {
+        return repositoryPort.findByUserUsername(username);
+    }
+
+    @Override
     public void deactivate(UUID uuid) {
         User user = repositoryPort.findUserById(uuid);
         user.setActive(false);
         repositoryPort.saveUser(user);
+    }
+
+    @Override
+    public void delete(String username, UUID uuid) {
+        User user = repositoryPort.findUserById(uuid);
+        if (!Objects.equals(user.getUsername(), username)) {
+            throw new RuntimeException("Only the user owner can edit this account.");
+        }
+        repositoryPort.deleteUser(user);
     }
 
 }

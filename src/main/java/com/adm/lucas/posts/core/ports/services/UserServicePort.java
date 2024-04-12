@@ -4,7 +4,6 @@ import com.adm.lucas.posts.core.domain.User;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserServicePort {
@@ -13,12 +12,16 @@ public interface UserServicePort {
 
     void register(User user);
 
-    void edit(UUID uuid, String email, String username, String password, Optional<String> photo, LocalDate birthDate);
+    void edit(UUID uuid, String username, String newEmail, String newUsername, String newPassword, LocalDate newBirthDate);
 
-    User detail(UUID uuid);
+    void changePhoto(UUID uuid, String username, String photo);
 
     List<User> listAll();
 
+    User findByUsername(String username);
+
     void deactivate(UUID uuid);
+
+    void delete(String username, UUID uuid);
 
 }

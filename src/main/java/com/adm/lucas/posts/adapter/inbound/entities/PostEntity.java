@@ -3,6 +3,7 @@ package com.adm.lucas.posts.adapter.inbound.entities;
 import com.adm.lucas.posts.core.domain.Status;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "posts")
 @Data
+@NoArgsConstructor
 public class PostEntity {
 
     @Id

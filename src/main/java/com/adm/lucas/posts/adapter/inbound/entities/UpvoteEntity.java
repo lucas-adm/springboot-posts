@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.UUID;
 
@@ -25,10 +24,5 @@ public class UpvoteEntity {
     @JoinColumn(name = "post_id", nullable = false)
     @ManyToOne
     private PostEntity post;
-
-    public UpvoteEntity(UserEntity user, PostEntity post) {
-        this.user = user;
-        this.post = post;
-    }
 
 }

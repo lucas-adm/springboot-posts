@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping
+@RequestMapping("posts/post")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentServicePort servicePort;
 
     @Transactional
-    @PostMapping("posts/post/{uuid}/comments")
+    @PostMapping("/{uuid}/comments")
     public ResponseEntity postComment(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody CommentDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.comment(username, uuid, dto.text());
@@ -28,7 +28,7 @@ public class CommentController {
     }
 
     @Transactional
-    @PatchMapping("posts/post/comments/{uuid}")
+    @PatchMapping("/comments/{uuid}")
     public ResponseEntity editComment(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody CommentDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.edit(username, uuid, dto.text());
@@ -36,7 +36,7 @@ public class CommentController {
     }
 
     @Transactional
-    @DeleteMapping("posts/post/comments/{uuid}")
+    @DeleteMapping("/comments/{uuid}")
     public ResponseEntity deleteComment(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.remove(username, uuid);

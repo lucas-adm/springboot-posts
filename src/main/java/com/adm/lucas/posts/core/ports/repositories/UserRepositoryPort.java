@@ -17,6 +17,8 @@ public interface UserRepositoryPort {
 
     List<User> findAllUsersByActiveTrue();
 
+    void deleteUser(User user);
+
     String auth(String username, String password);
 
 }

@@ -1,17 +1,8 @@
 package com.adm.lucas.posts.infra;
 
-import com.adm.lucas.posts.core.ports.repositories.CommentRepositoryPort;
-import com.adm.lucas.posts.core.ports.repositories.PostRepositoryPort;
-import com.adm.lucas.posts.core.ports.repositories.UpvoteRepositoryPort;
-import com.adm.lucas.posts.core.ports.repositories.UserRepositoryPort;
-import com.adm.lucas.posts.core.ports.services.CommentServicePort;
-import com.adm.lucas.posts.core.ports.services.PostServicePort;
-import com.adm.lucas.posts.core.ports.services.UpvoteServicePort;
-import com.adm.lucas.posts.core.ports.services.UserServicePort;
-import com.adm.lucas.posts.core.usecases.CommentServiceImpl;
-import com.adm.lucas.posts.core.usecases.PostServiceImpl;
-import com.adm.lucas.posts.core.usecases.UpvoteServiceImpl;
-import com.adm.lucas.posts.core.usecases.UserServiceImpl;
+import com.adm.lucas.posts.core.ports.repositories.*;
+import com.adm.lucas.posts.core.ports.services.*;
+import com.adm.lucas.posts.core.usecases.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +33,11 @@ public class BeanConfigurations {
     @Bean
     public CommentServicePort commentServicePort(CommentRepositoryPort commentRepositoryPort) {
         return new CommentServiceImpl(commentRepositoryPort);
+    }
+
+    @Bean
+    public AnswerServicePort answerServicePort(AnswerRepositoryPort answerRepositoryPort) {
+        return new AnswerServiceImpl(answerRepositoryPort);
     }
 
 }

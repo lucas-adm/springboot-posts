@@ -24,11 +24,20 @@ public class ControllerAdvice {
         if (ex.getMessage().startsWith("Invalid password.")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid password.");
         }
+        if (ex.getMessage().startsWith("Only the user owner can edit this account.")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only the user owner can edit this account.");
+        }
         if (ex.getMessage().startsWith("Only the post user can edit this post.")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only the post user can edit this post.");
         }
+        if (ex.getMessage().startsWith("This post is closed.")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This post is closed.");
+        }
         if (ex.getMessage().startsWith("Only the comment user can edit this comment.")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only the comment user can edit this comment.");
+        }
+        if (ex.getMessage().startsWith("Only the answer user can edit this answer.")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Only the answer user can edit this answer.");
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + ex.getMessage());
     }

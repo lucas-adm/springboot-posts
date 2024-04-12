@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping
+@RequestMapping("/posts/post/upvotes")
 @RequiredArgsConstructor
 public class UpvoteController {
 
     private final UpvoteServicePort servicePort;
 
     @Transactional
-    @PostMapping("/posts/post/{uuid}")
+    @PostMapping("/{uuid}")
     public ResponseEntity upvotePost(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.upvote(username, uuid);
@@ -25,7 +25,7 @@ public class UpvoteController {
     }
 
     @Transactional
-    @DeleteMapping("/posts/post/{uuid}")
+    @DeleteMapping("/{uuid}")
     public void deleteUpvote(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.remove(username, uuid);

@@ -3,14 +3,17 @@ package com.adm.lucas.posts.adapter.inbound.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "comments")
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(exclude = "post")
 public class CommentEntity {
 
@@ -30,5 +33,8 @@ public class CommentEntity {
 
     @Column(name = "date_comment", nullable = false)
     private LocalDateTime dateComment = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<AnswerEntity> answers;
 
 }

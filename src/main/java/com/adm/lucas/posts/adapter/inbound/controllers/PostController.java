@@ -49,15 +49,7 @@ public class PostController {
     }
 
     @Transactional
-    @PatchMapping("/edit/{uuid}")
-    public ResponseEntity editPostStatus(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
-        String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
-        servicePort.close(uuid, username);
-        return ResponseEntity.accepted().build();
-    }
-
-    @Transactional
-    @PutMapping("/edit/{uuid}")
+    @PutMapping("/post/{uuid}")
     public ResponseEntity editPost(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid PostDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.edit(uuid, username, dto.text());
@@ -65,7 +57,15 @@ public class PostController {
     }
 
     @Transactional
-    @DeleteMapping("/{uuid}")
+    @PatchMapping("/post/{uuid}")
+    public ResponseEntity editPostStatus(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+        String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
+        servicePort.close(uuid, username);
+        return ResponseEntity.accepted().build();
+    }
+
+    @Transactional
+    @DeleteMapping("/post/{uuid}")
     public ResponseEntity deletePost(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.delete(uuid, username);
