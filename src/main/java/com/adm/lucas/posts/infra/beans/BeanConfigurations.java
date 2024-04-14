@@ -1,4 +1,4 @@
-package com.adm.lucas.posts.infra;
+package com.adm.lucas.posts.infra.beans;
 
 import com.adm.lucas.posts.core.ports.repositories.*;
 import com.adm.lucas.posts.core.ports.services.*;
