@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.adm.lucas</groupId>
     <artifactId>posts</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>posts</name>
     <description>Aplicação APIRestful para Posts</description>
     <properties>
@@ -35,8 +35,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
