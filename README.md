@@ -2,56 +2,51 @@
 
 ```mermaid
 classDiagram
-
-    class User {
-        UUID id;
-        String email;
-        String username;
-        String password;
-        LocalDate nascimento;
-        Optional<String> photo;
-        Boolean active;
+    class UserEntity {
+        UUID id
+        String email
+        String username
+        String password
+        String photo
+        LocalDate birthDate
+        Role role
     }
-
-    class Post {
-        UUID id;
-        User user;
-        LocalDate dataPost;
-        List<Upvote> upvotes;
-        Status status;
-        List<Comment> comments;
+    class PostEntity {
+        UUID id
+        UserEntity user
+        String username
+        LocalDateTime datePost
+        Status status
+        String text
+        Set<UpvoteEntity> upvotes
+        List<CommentEntity> comments
     }
-
-    class Status {
-        OPEN,
-        CLOSED
+    class CommentEntity {
+        UUID id
+        UserEntity user
+        PostEntity post
+        String text
+        LocalDateTime dateComment
+        List<AnswerEntity> answers
     }
-
-    class Comment {
-        UUID id;
-        Post post;
-	      String text;
-        List<Answer> answers;
-        List<Upvote> upvotes;
+    class AnswerEntity {
+        UUID id
+        UserEntity user
+        CommentEntity comment
+        LocalDateTime dateAnswer
+        String text
     }
-
-    class Answer {
-        UUID id;
-        User user;
-        Comment comment;
-	      String text;
-        List<Upvote> upvotes;
+    class UpvoteEntity {
+        UUID id
+        UserEntity user
+        PostEntity post
     }
+    UserEntity "1" -- "0..*" PostEntity : has
+    UserEntity "1" -- "0..*" CommentEntity : has
+    UserEntity "1" -- "0..*" AnswerEntity : has
+    UserEntity "1" -- "0..*" UpvoteEntity : has
+    PostEntity "1" -- "0..*" CommentEntity : has
+    PostEntity "1" -- "0..*" UpvoteEntity : has
+    CommentEntity "1" -- "0..*" AnswerEntity : has
 
-    class Upvote {
-        UUID id;
-        User user;
-    }
-
-    User "N" -- "1" Post
-    Post "0..N" -- "1" Comment
-    Post "0..N" -- "1" Upvote
-    Comment "0..N" -- "1" Answer
-    Comment "0..N" -- "1..N" Upvote
-    Answer "0..N" -- "1..N" Upvote
 ```
