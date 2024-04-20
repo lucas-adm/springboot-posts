@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y openjdk-17-jdk
 
 COPY . .
 
-RUN chmod +x mvnw && ./mvnw clean install -DskipTests
+RUN chmod +x mvnw && ./mvnw clean install
 
 FROM openjdk:17-jdk-slim
 

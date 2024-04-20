@@ -20,7 +20,7 @@ public interface UserServicePort {
 
     User findByUsername(String username);
 
-    void deactivate(UUID uuid);
+    void deactivate(String username, UUID uuid);
 
     void delete(String username, UUID uuid);
 

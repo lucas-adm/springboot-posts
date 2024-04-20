@@ -49,7 +49,7 @@ public class UserController {
         return ResponseEntity.ok().body(usersDetails);
     }
 
-    @Operation(summary = "Get a user by username", description = "Retrieve a list of all registered users")
+    @Operation(summary = "Get a user by username", description = "Retrieves a user account")
     @GetMapping("/{username}")
     public ResponseEntity<UserDetailDTO> findUser(@PathVariable String username) {
         User user = servicePort.findByUsername(username);
@@ -57,7 +57,7 @@ public class UserController {
         return ResponseEntity.ok().body(userDetails);
     }
 
-    @Operation(summary = "Register a user", description = "Create a new user account if email or username is available. Feel free to use your real email to get a greetings message 🙃. \n This app has already a demo user to make the login if you want, visit de login endpoint.")
+    @Operation(summary = "Register a user", description = "Creates a new user account if email or username is available. Feel free to use your real email to get a greetings message 🙃. \n This app has already a demo user to make the login if you want, visit de login endpoint.")
     @Transactional
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody @Valid UserRegisterDTO dto, UriComponentsBuilder uriComponentsBuilder) {
@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.created(uri).body(user);
     }
 
-    @Operation(summary = "Edit your user by user id", description = "Only the owner account can use this method")
+    @Operation(summary = "Edit your user by id", description = "Only the owner account can use this method")
     @Transactional
     @PutMapping("/edit/{uuid}")
     public ResponseEntity editUser(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserUpdateDTO dto) {
@@ -77,7 +77,7 @@ public class UserController {
         return ResponseEntity.accepted().build();
     }
 
-    @Operation(summary = "Changes your user photo by user id", description = "Changes the account image profile")
+    @Operation(summary = "Changes your user photo by id", description = "Changes the account image profile")
     @Transactional
     @PatchMapping("/edit/{uuid}")
     public ResponseEntity changePhoto(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserPhotoDTO dto) {
@@ -86,15 +86,16 @@ public class UserController {
         return ResponseEntity.accepted().build();
     }
 
-    @Operation(summary = "Deactivates your user by user id", description = "Turn the user role to DEACTIVATED")
+    @Operation(summary = "Deactivates your user by id", description = "Turn the user role to DEACTIVATED")
     @Transactional
     @DeleteMapping("/deactivate/{uuid}")
-    public ResponseEntity deactivateUser(@PathVariable UUID uuid) {
-        servicePort.deactivate(uuid);
+    public ResponseEntity deactivateUser(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+        String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
+        servicePort.deactivate(username, uuid);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Removes your user by user id", description = "Excludes a user from database")
+    @Operation(summary = "Removes your user by id", description = "Excludes a user from database")
     @Transactional
     @DeleteMapping("/{uuid}")
     public ResponseEntity deleteUser(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {

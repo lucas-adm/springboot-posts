@@ -63,8 +63,11 @@ public class UserServiceImpl implements UserServicePort {
     }
 
     @Override
-    public void deactivate(UUID uuid) {
+    public void deactivate(String username, UUID uuid) {
         User user = repositoryPort.findUserById(uuid);
+        if (!Objects.equals(user.getUsername(), username)) {
+            throw new RuntimeException("Only the user owner can edit this account.");
+        }
         user.setRole(Role.DEACTIVATED);
         repositoryPort.saveUser(user);
     }
