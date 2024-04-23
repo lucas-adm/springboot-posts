@@ -19,13 +19,15 @@ public class CommentServiceImpl implements CommentServicePort {
     }
 
     @Override
-    public void comment(String username, UUID uuid, String text) {
+    public Comment comment(String username, UUID uuid, String text) {
         User user = repositoryPort.findUserByUsername(username);
         Post post = repositoryPort.findPostById(uuid);
         if (post.getStatus() == Status.CLOSED) {
             throw new RuntimeException("This post is closed.");
         }
-        repositoryPort.saveComment(new Comment(user, post, text));
+        Comment comment = new Comment(user, post, text);
+        repositoryPort.saveComment(comment);
+        return comment;
     }
 
     @Override

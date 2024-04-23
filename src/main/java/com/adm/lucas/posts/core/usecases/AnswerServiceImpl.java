@@ -20,13 +20,15 @@ public class AnswerServiceImpl implements AnswerServicePort {
     }
 
     @Override
-    public void answer(String username, UUID uuid, String text) {
+    public Answer answer(String username, UUID uuid, String text) {
         User user = repositoryPort.findUserByUsername(username);
         Comment comment = repositoryPort.findCommentById(uuid);
         if (comment.getPost().getStatus() == Status.CLOSED) {
             throw new RuntimeException("This post is closed.");
         }
-        repositoryPort.saveAnswer(new Answer(user, comment, text));
+        Answer answer = new Answer(user, comment, text);
+        repositoryPort.saveAnswer(answer);
+        return answer;
     }
 
     @Override

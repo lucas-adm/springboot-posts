@@ -5,6 +5,7 @@ import com.adm.lucas.posts.core.domain.Upvote;
 import com.adm.lucas.posts.core.domain.User;
 import com.adm.lucas.posts.core.ports.repositories.UpvoteRepositoryPort;
 import com.adm.lucas.posts.core.ports.services.UpvoteServicePort;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.UUID;
 
@@ -20,6 +21,9 @@ public class UpvoteServiceImpl implements UpvoteServicePort {
     public void upvote(String username, UUID uuid) {
         User user = repositoryPort.findUserByUsername(username);
         Post post = repositoryPort.findPostById(uuid);
+        if (user == null || post == null) {
+            throw new EntityNotFoundException();
+        }
         repositoryPort.saveUpvote(new Upvote(user, post));
     }
 

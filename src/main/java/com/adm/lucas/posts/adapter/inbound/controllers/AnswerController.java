@@ -31,10 +31,10 @@ public class AnswerController {
     @Operation(summary = "Insert a answer by comment id", description = "Make as many answers as you want")
     @Transactional
     @PostMapping("/{uuid}")
-    public ResponseEntity postAnswer(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid AnswerDTO dto) {
+    public ResponseEntity<AnswerDetailDTO> postAnswer(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid AnswerDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
-        servicePort.answer(username, uuid, dto.text());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Answer answer = servicePort.answer(username, uuid, dto.text());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerDetailDTO(answer));
     }
 
     @Operation(summary = "Edit your answer by id", description = "Change your answer text")

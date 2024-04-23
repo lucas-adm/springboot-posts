@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface AnswerServicePort {
 
-    void answer(String username, UUID uuid, String text);
+    Answer answer(String username, UUID uuid, String text);
 
     void edit(String username, UUID uuid, String text);
 

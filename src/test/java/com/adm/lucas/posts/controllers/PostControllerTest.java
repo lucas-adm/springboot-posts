@@ -274,7 +274,7 @@ public class PostControllerTest {
     }
 
     @Test
-    public void editPost_whenTextIsValidButUserIsUnauthorized_receiveUnauthorizedAndKeepsOldText() throws Exception {
+    public void editPost_whenTextIsValidAndUserIsAuthorizedButNotPostOwner_receiveUnauthorizedAndKeepsOldText() throws Exception {
         loginWithFirstUser();
         var created = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
@@ -301,6 +301,24 @@ public class PostControllerTest {
                 .contentType(MediaType.APPLICATION_JSON).content(VALID_EDIT_POST)).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void editPost_whenUserIsNotAuthorized_receiveBadRequestAndKeepsStatus() throws Exception {
+        loginWithFirstUser();
+        var created = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
+        var dto = objectMapper.readValue(created.getContentAsString(), PostCreatedDTO.class);
+
+        var response = mvc.perform(put("/posts/post/{uuid}", dto.id())
+                .contentType(MediaType.APPLICATION_JSON).content(VALID_EDIT_POST)).andReturn().getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+
+        var post = mvc.perform(get("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
+        String text = objectMapper.readValue(post.getContentAsString(), PostDetailDTO.class).text();
+
+        assertThat(text).isEqualTo(dto.text());
     }
 
     // Patch
@@ -351,6 +369,23 @@ public class PostControllerTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
+    @Test
+    public void patchPost_whenUserIsNotAuthorized_receiveBadRequestAndKeepsStatus() throws Exception {
+        loginWithFirstUser();
+        var created = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
+        var dto = objectMapper.readValue(created.getContentAsString(), PostCreatedDTO.class);
+
+        var response = mvc.perform(patch("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+
+        var post = mvc.perform(get("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
+        Status status = objectMapper.readValue(post.getContentAsString(), PostDetailDTO.class).status();
+
+        assertThat(status).isEqualTo(dto.status());
+    }
+
     // Delete
 
     @Test
@@ -397,6 +432,24 @@ public class PostControllerTest {
                 .header("Authorization", "Bearer " + token)).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void deletePost_whenUserIsUnauthorized_receiveBadRequestAndPostExists() throws Exception {
+        loginWithFirstUser();
+        var created = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
+        var dto = objectMapper.readValue(created.getContentAsString(), PostCreatedDTO.class);
+
+        var response = mvc.perform(delete("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+
+        var post = mvc.perform(get("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
+        var detail = objectMapper.readValue(post.getContentAsString(), PostDetailDTO.class);
+
+        assertThat(post.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(dto.id()).isEqualTo(detail.id());
     }
 
 }
