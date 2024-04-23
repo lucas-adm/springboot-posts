@@ -1,6 +1,7 @@
 package com.adm.lucas.posts.adapter.inbound.controllers;
 
 import com.adm.lucas.posts.adapter.inbound.dtos.in.post.PostDTO;
+import com.adm.lucas.posts.adapter.inbound.dtos.out.post.PostCreatedDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.post.PostDetailDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.post.PostsDTO;
 import com.adm.lucas.posts.core.domain.Post;
@@ -12,9 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,9 +33,10 @@ public class PostController {
     @Operation(summary = "Create a new post")
     @Transactional
     @PostMapping
-    public ResponseEntity<String> newPost(@RequestHeader("Authorization") String token, @RequestBody @Valid PostDTO dto) {
-        servicePort.create(JWT.decode(token.replace("Bearer ", "")).getSubject(), dto.text());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<PostCreatedDTO> newPost(@RequestHeader("Authorization") String token, @RequestBody @Valid PostDTO dto, UriComponentsBuilder uriComponentsBuilder) {
+        Post post = servicePort.create(JWT.decode(token.replace("Bearer ", "")).getSubject(), dto.text());
+        var uri = uriComponentsBuilder.path("/posts/post/{id}").buildAndExpand(post.getId()).toUri();
+        return ResponseEntity.created(uri).body(new PostCreatedDTO(post));
     }
 
     @Operation(summary = "Get all posts", description = "Retrieves a page of posts")

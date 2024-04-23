@@ -19,9 +19,11 @@ public class PostServiceImpl implements PostServicePort {
     }
 
     @Override
-    public void create(String username, String text) {
+    public Post create(String username, String text) {
         User user = repositoryPort.findUserByUsername(username);
-        repositoryPort.savePost(new Post(user, text));
+        Post post = new Post(user, text);
+        repositoryPort.savePost(post);
+        return post;
     }
 
     @Override

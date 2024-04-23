@@ -1,13 +1,14 @@
 package com.adm.lucas.posts.core.ports.services;
 
 import com.adm.lucas.posts.core.domain.Post;
+import com.adm.lucas.posts.core.domain.User;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface PostServicePort {
 
-    void create(String username, String text);
+    Post create(String username, String text);
 
     void edit(UUID uuid, String username, String text);
 
