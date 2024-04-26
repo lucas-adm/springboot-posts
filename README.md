@@ -20,24 +20,23 @@
 
 ### Como realizar as requisições ⁉
 
-#### ▶ Faça suas requisições *<a href="posts-i9sv.onrender.com/swagger-ui.html">aqui</a>* 
+#### ▶ Faça suas requisições *<a href="https://posts-i9sv.onrender.com/swagger-ui.html">aqui</a>*
 
 Para fazer as requisições é necessário estar conectado à uma conta cadastrada, caso não queria se cadastrar, há um conta de demonstração já criada para este propósito, acesse a parte ***users/login*** para mais informações.
 
 <details open>
-    
+
 <summary>/users/register</summary>
 
 <br>
 
-> Por gentileza use um de seus emails, uma mensagem de boas-vindas será enviada
+> Por gentileza use um de seus emails, uma mensagem para ativação da conta será enviada
 
 ```java
 "email": "email válido",
-"username": ">= 4 letras e <= 33",
-"password": ">= 4 letras e <= 33, ao menos 1 letra minúscula, 1 máiuscula e 1 um número.",
-"photo": null,
-"birthDate": "2001-01-01, >= 12 anos"
+"username": "4 a 33 caracteres",
+"password": "4 a 33 caracteres e ao menos 1 letra minúscula, 1 máiuscula e 1 um número.",
+"birthDate": "2001-01-01, deve possuir +12 anos"
 ```
 
 </details>
@@ -47,15 +46,15 @@ Para fazer as requisições é necessário estar conectado à uma conta cadastra
 
 <br>
 
-> O usuário ***demo*** está permitido à apenas realizar requisições do tipo POST, recomendo se cadastrar e então se conectar
-  
+> O usuário ***demo*** está permitido à apenas realizar requisições do tipo POST, é recomendado se cadastrar e então se conectar, lembre-se de ativar a conta pelo email.
+
 ```java
 "username":"demo",
 "senha":"Senha123"
 ```
 
 <div align="center">
-  
+
 ![efetuarLogin](https://i.imgur.com/2QYVSvD.png)
 
 </div>
@@ -72,7 +71,7 @@ Para fazer as requisições é necessário estar conectado à uma conta cadastra
 
 </div>
 
-> Este token será utilizado para maioria das requisições no campo "Authorization"
+> Este token será utilizado para validar o usuário logado, bloqueando ações não autorizadas
 
 </details>
 
@@ -134,9 +133,9 @@ classDiagram
 ## Arquitetura
 
 <details>
-    
+
 ![](https://i.imgur.com/A07W2TP.png)
-    
+
 </details>
 
 ###### Banco de Dados e Server Deploy por <a href="https://render.com">*Render*</a>
@@ -144,5 +143,5 @@ classDiagram
 <div align="center">
 
 ![swagger](https://i.imgur.com/4Eeni2t.png)
-  
+
 </div>

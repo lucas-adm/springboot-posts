@@ -28,9 +28,9 @@ public class SecurityConfigurations {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers("/h2-console", "/h2-console/**").permitAll();
-                    req.requestMatchers("v3/api-docs/**", "swagger-ui.html", "swagger-ui/**").permitAll();
-                    req.requestMatchers(HttpMethod.POST, "users/register").permitAll();
-                    req.requestMatchers(HttpMethod.POST, "users/login").permitAll();
+                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/users/register").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/users/login").permitAll();
                     req.requestMatchers(HttpMethod.GET).permitAll();
                     req.requestMatchers(HttpMethod.POST).hasAnyRole("ACTIVATED", "DEMO");
                     req.anyRequest().hasRole("ACTIVATED");

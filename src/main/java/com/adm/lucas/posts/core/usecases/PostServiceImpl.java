@@ -50,7 +50,7 @@ public class PostServiceImpl implements PostServicePort {
     public void delete(UUID uuid, String username) {
         Post post = repositoryPort.findPostById(uuid);
         if (!Objects.equals(post.getUsername(), username)) {
-            throw new RuntimeException("Only the post user can edit this post.");
+            throw new RuntimeException("Only the post user can delete this post.");
         }
         repositoryPort.removePost(post);
     }

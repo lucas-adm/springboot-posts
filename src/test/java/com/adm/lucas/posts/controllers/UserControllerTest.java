@@ -6,13 +6,14 @@ import com.adm.lucas.posts.adapter.inbound.repositories.UserRepository;
 import com.adm.lucas.posts.core.domain.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,7 +24,7 @@ import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 @SpringBootTest
 public class UserControllerTest {
@@ -37,7 +38,7 @@ public class UserControllerTest {
     @Autowired
     private UserRepository repository;
 
-    @BeforeEach
+    @AfterEach
     public void cleanup() {
         repository.deleteAll();
     }
@@ -136,16 +137,44 @@ public class UserControllerTest {
     }
 
     @Test
+    public void userRegister_whenUserIsValidButUsernameOrEmailIsUnavailable_receiveNotAcceptable() throws Exception {
+        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON));
+        var response = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
+    }
+
+    @Test
     public void userRegister_whenUserIsInvalid_receiveBadRequest() throws Exception {
         var response = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(INVALID_USER_JSON)).andReturn().getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    // Activate User
+
+    public MockHttpServletResponse activateUser(MockHttpServletResponse method) throws Exception {
+        UUID id = objectMapper.readValue(method.getContentAsString(), UserDetailDTO.class).id();
+        return mvc.perform(get("/users/activate/{uuid}", id)).andReturn().getResponse();
+    }
+
+    @Test
+    public void activeUser_whenUserExists_receiveFound() throws Exception {
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        assertThat(activateUser(register).getStatus()).isEqualTo(HttpStatus.FOUND.value());
+    }
+
+    @Test
+    public void activeUser_whenUserNotExists_receiveNotFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        var response = mvc.perform(get("/users/activate/{uuid}", id)).andReturn().getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     // GET
 
     @Test
     public void findUser_whenUserExists_receiveOk() throws Exception {
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON));
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
         var response = mvc.perform(get("/users/{username}", "Lucas")).andReturn().getResponse();
         var dto = objectMapper.readValue(response.getContentAsString(), UserDetailDTO.class);
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -153,6 +182,13 @@ public class UserControllerTest {
         assertThat(dto.username()).isEqualTo("Lucas");
         assertThat(dto.photo()).isEmpty();
         assertThat(dto.birthDate()).isEqualTo("22 junho, 2002");
+    }
+
+    @Test
+    public void findUser_whenUserExistsButIsNotActivated_receiveNotFound() throws Exception {
+        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON));
+        var response = mvc.perform(get("/users/{username}", "Lucas")).andReturn().getResponse();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -164,11 +200,13 @@ public class UserControllerTest {
 
     @Test
     public void findAllUsers_receiveOkAndListSize() throws Exception {
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON));
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON));
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        var register2 = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register2);
 
         var response = mvc.perform(get("/users")).andReturn().getResponse();
-        List<UserDetailDTO> users = objectMapper.readValue(response.getContentAsString(), new TypeReference<List<UserDetailDTO>>() {
+        List<UserDetailDTO> users = objectMapper.readValue(response.getContentAsString(), new TypeReference<>() {
         });
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -207,8 +245,9 @@ public class UserControllerTest {
 
     @Test
     public void userEdit_whenUserIsAuthorized_receiveAccepted() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -229,8 +268,9 @@ public class UserControllerTest {
 
     @Test
     public void userEdit_whenUserIsAuthorizedAndEditIsInvalid_receiveBadRequest() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -244,9 +284,12 @@ public class UserControllerTest {
 
     @Test
     public void userEdit_whenUserIsUnauthorized_receiveUnauthorized() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON));
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
+
+        var register2 = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register2);
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -258,12 +301,28 @@ public class UserControllerTest {
         assertThat(JSON.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
+    @Test
+    public void userEdit_whenUserIsAuthorizedButIsNotActivated_receiveForbidden() throws Exception {
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
+
+        var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
+        var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
+        String token = dto.token();
+
+        var JSON = mvc.perform(put("/users/edit/{uuid}", uuid).header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(VALID_UPDATE_USER_JSON)).andReturn().getResponse();
+
+        assertThat(JSON.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
+
     // Changes User Photo
 
     @Test
     public void userChangePhoto_whenUserIsAuthorized_receiveAccepted() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -282,8 +341,12 @@ public class UserControllerTest {
 
     @Test
     public void userChangePhoto_whenUserIsAuthorizedAndPhotoIsInvalid_receiveBadRequest() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
+
+        var register2 = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register2);
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -297,9 +360,12 @@ public class UserControllerTest {
 
     @Test
     public void userChangePhoto_whenUserIsUnauthorized_receiveUnauthorized() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON));
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
+
+        var register2 = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register2);
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -315,8 +381,9 @@ public class UserControllerTest {
 
     @Test
     public void userDeactivate_whenUserIsAuthorized_receiveNoContent() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -333,8 +400,9 @@ public class UserControllerTest {
 
     @Test
     public void userDeactivate_whenUserIsAuthorizedAndIdNotExists_receiveNotFound() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = null;
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = UUID.randomUUID();
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -346,9 +414,12 @@ public class UserControllerTest {
 
     @Test
     public void userDeactivate_whenUserIsUnauthorized_receiveUnauthorized() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON));
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
+
+        var register2 = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register2);
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -363,8 +434,9 @@ public class UserControllerTest {
 
     @Test
     public void userDelete_whenUserIsAuthorized_receiveNoContent() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -381,8 +453,9 @@ public class UserControllerTest {
 
     @Test
     public void userDelete_whenUserIsAuthorizedAndIdNotExists_receiveNotFound() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = null;
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = UUID.randomUUID();
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
@@ -395,9 +468,12 @@ public class UserControllerTest {
 
     @Test
     public void userDelete_whenUserIsUnauthorized_receiveUnauthorized() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse().getContentAsString();
-        UUID uuid = objectMapper.readValue(register, User.class).getId();
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON));
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
+        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
+
+        var register2 = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register2);
 
         var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_USER_JSON)).andReturn().getResponse();
         var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);

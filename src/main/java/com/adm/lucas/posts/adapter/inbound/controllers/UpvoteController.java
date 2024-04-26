@@ -3,6 +3,7 @@ package com.adm.lucas.posts.adapter.inbound.controllers;
 import com.adm.lucas.posts.core.ports.services.UpvoteServicePort;
 import com.auth0.jwt.JWT;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
@@ -25,7 +26,7 @@ public class UpvoteController {
     @Operation(summary = "Upvote a post by post id", description = "Increase the number of a Post upvote")
     @Transactional
     @PostMapping("/{uuid}")
-    public ResponseEntity upvotePost(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public ResponseEntity upvotePost(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.upvote(username, uuid);
         return ResponseEntity.ok().build();
@@ -34,7 +35,7 @@ public class UpvoteController {
     @Operation(summary = "Remove your upvote by post id", description = "Decrease the number of a Post upvote")
     @Transactional
     @DeleteMapping("/{uuid}")
-    public void deleteUpvote(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public void deleteUpvote(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.remove(username, uuid);
     }

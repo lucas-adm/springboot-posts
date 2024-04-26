@@ -29,7 +29,10 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     private final TokenService tokenService;
 
     @Override
-    public void saveUser(User user) {
+    public void registerUser(User user) {
+        if (Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 12) {
+            throw new RuntimeException("User must be at least 12 years old.");
+        }
         Optional<UserEntity> optionalEntity = repository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
         if (optionalEntity.isPresent()) {
             UserEntity entity = optionalEntity.get();
@@ -38,11 +41,23 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
             }
         }
         UserEntity entity = modelMapper.map(user, UserEntity.class);
-        int age = Period.between(user.getBirthDate(), LocalDate.now()).getYears();
-        if (age < 12) {
+        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        repository.save(entity);
+    }
+
+    @Override
+    public void saveUser(User user) {
+        if (Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 12) {
             throw new RuntimeException("User must be at least 12 years old.");
         }
-        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        Optional<UserEntity> optionalEntity = repository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
+        if (optionalEntity.isPresent()) {
+            UserEntity entity = optionalEntity.get();
+            if (entity.getId() != user.getId()) {
+                throw new RuntimeException("Email or username are unavailable.");
+            }
+        }
+        UserEntity entity = modelMapper.map(user, UserEntity.class);
         repository.save(entity);
     }
 

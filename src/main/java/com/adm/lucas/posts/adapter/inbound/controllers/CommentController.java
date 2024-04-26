@@ -6,6 +6,7 @@ import com.adm.lucas.posts.core.domain.Comment;
 import com.adm.lucas.posts.core.ports.services.CommentServicePort;
 import com.auth0.jwt.JWT;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
@@ -30,7 +31,7 @@ public class CommentController {
     @Operation(summary = "Insert a comment by post id", description = "Use the Post id to insert a comment")
     @Transactional
     @PostMapping("/{uuid}/comments")
-    public ResponseEntity<CommentCreatedDTO> postComment(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody CommentDTO dto) {
+    public ResponseEntity<CommentCreatedDTO> postComment(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody CommentDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         Comment comment = servicePort.comment(username, uuid, dto.text());
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommentCreatedDTO(comment));
@@ -39,7 +40,7 @@ public class CommentController {
     @Operation(summary = "Edit your comment by id", description = "Change your comment text")
     @Transactional
     @PatchMapping("/comments/{uuid}")
-    public ResponseEntity editComment(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody CommentDTO dto) {
+    public ResponseEntity editComment(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody CommentDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.edit(username, uuid, dto.text());
         return ResponseEntity.accepted().build();
@@ -48,7 +49,7 @@ public class CommentController {
     @Operation(summary = "Delete your comment by id", description = "Excludes a comment from database")
     @Transactional
     @DeleteMapping("/comments/{uuid}")
-    public ResponseEntity deleteComment(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public ResponseEntity deleteComment(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.remove(username, uuid);
         return ResponseEntity.noContent().build();

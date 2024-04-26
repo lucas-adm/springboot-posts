@@ -8,6 +8,7 @@ import com.adm.lucas.posts.core.domain.Post;
 import com.adm.lucas.posts.core.ports.services.PostServicePort;
 import com.auth0.jwt.JWT;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
@@ -33,7 +34,7 @@ public class PostController {
     @Operation(summary = "Create a new post")
     @Transactional
     @PostMapping
-    public ResponseEntity<PostCreatedDTO> newPost(@RequestHeader("Authorization") String token, @RequestBody @Valid PostDTO dto, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<PostCreatedDTO> newPost(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @RequestBody @Valid PostDTO dto, UriComponentsBuilder uriComponentsBuilder) {
         Post post = servicePort.create(JWT.decode(token.replace("Bearer ", "")).getSubject(), dto.text());
         var uri = uriComponentsBuilder.path("/posts/post/{id}").buildAndExpand(post.getId()).toUri();
         return ResponseEntity.created(uri).body(new PostCreatedDTO(post));
@@ -63,7 +64,7 @@ public class PostController {
     @Operation(summary = "Edit your post by id", description = "Change your post text")
     @Transactional
     @PutMapping("/post/{uuid}")
-    public ResponseEntity editPost(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid PostDTO dto) {
+    public ResponseEntity editPost(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid PostDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.edit(uuid, username, dto.text());
         return ResponseEntity.accepted().build();
@@ -72,7 +73,7 @@ public class PostController {
     @Operation(summary = "Close your post by id", description = "Closing a post you turn comment and answers unavailable")
     @Transactional
     @PatchMapping("/post/{uuid}")
-    public ResponseEntity editPostStatus(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public ResponseEntity editPostStatus(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.close(uuid, username);
         return ResponseEntity.accepted().build();
@@ -81,7 +82,7 @@ public class PostController {
     @Operation(summary = "Delete your post by id", description = "Excludes a post from database")
     @Transactional
     @DeleteMapping("/post/{uuid}")
-    public ResponseEntity deletePost(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public ResponseEntity deletePost(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.delete(uuid, username);
         return ResponseEntity.noContent().build();

@@ -12,6 +12,8 @@ public interface UserServicePort {
 
     void register(User user);
 
+    void activate(UUID uuid);
+
     void edit(UUID uuid, String username, String newEmail, String newUsername, String newPassword, LocalDate newBirthDate);
 
     void changePhoto(UUID uuid, String username, String photo);

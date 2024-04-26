@@ -26,6 +26,13 @@ public class UserServiceImpl implements UserServicePort {
 
     @Override
     public void register(User user) {
+        repositoryPort.registerUser(user);
+    }
+
+    @Override
+    public void activate(UUID uuid) {
+        User user = repositoryPort.findUserById(uuid);
+        user.setRole(Role.ACTIVATED);
         repositoryPort.saveUser(user);
     }
 

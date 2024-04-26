@@ -7,6 +7,8 @@ import java.util.UUID;
 
 public interface UserRepositoryPort {
 
+    void registerUser(User user);
+
     void saveUser(User user);
 
     User findByUserUsername(String username);

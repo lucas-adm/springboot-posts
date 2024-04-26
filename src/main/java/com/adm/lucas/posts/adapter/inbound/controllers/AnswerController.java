@@ -6,6 +6,7 @@ import com.adm.lucas.posts.core.domain.Answer;
 import com.adm.lucas.posts.core.ports.services.AnswerServicePort;
 import com.auth0.jwt.JWT;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
@@ -31,7 +32,7 @@ public class AnswerController {
     @Operation(summary = "Insert a answer by comment id", description = "Make as many answers as you want")
     @Transactional
     @PostMapping("/{uuid}")
-    public ResponseEntity<AnswerDetailDTO> postAnswer(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid AnswerDTO dto) {
+    public ResponseEntity<AnswerDetailDTO> postAnswer(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid AnswerDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         Answer answer = servicePort.answer(username, uuid, dto.text());
         return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerDetailDTO(answer));
@@ -40,7 +41,7 @@ public class AnswerController {
     @Operation(summary = "Edit your answer by id", description = "Change your answer text")
     @Transactional
     @PatchMapping("/answers/{uuid}")
-    public ResponseEntity editAnswer(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid AnswerDTO dto) {
+    public ResponseEntity editAnswer(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @RequestBody @Valid AnswerDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.edit(username, uuid, dto.text());
         return ResponseEntity.accepted().build();
@@ -49,7 +50,7 @@ public class AnswerController {
     @Operation(summary = "Delete your answer by id", description = "Exclude a answer from database")
     @Transactional
     @DeleteMapping("/answers/{uuid}")
-    public ResponseEntity deleteAnswer(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public ResponseEntity deleteAnswer(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.remove(username, uuid);
         return ResponseEntity.noContent().build();

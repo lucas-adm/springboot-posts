@@ -44,7 +44,7 @@ public class CommentServiceImpl implements CommentServicePort {
     public void remove(String username, UUID uuid) {
         Comment comment = repositoryPort.findCommentById(uuid);
         if (!Objects.equals(comment.getUser().getUsername(), username)) {
-            throw new RuntimeException("Only the comment user can edit this comment.");
+            throw new RuntimeException("Only the comment user can delete this comment.");
         }
         repositoryPort.removeComment(comment);
     }

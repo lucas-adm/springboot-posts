@@ -11,15 +11,18 @@ import com.adm.lucas.posts.core.domain.User;
 import com.adm.lucas.posts.core.ports.services.UserServicePort;
 import com.auth0.jwt.JWT;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,10 +71,18 @@ public class UserController {
         return ResponseEntity.created(uri).body(user);
     }
 
+    @Operation(hidden = true)
+    @Transactional
+    @GetMapping("/activate/{uuid}")
+    public ResponseEntity activateUser(@PathVariable UUID uuid) {
+        servicePort.activate(uuid);
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/swagger-ui.html")).build();
+    }
+
     @Operation(summary = "Edit your user by id", description = "Only the owner account can use this method")
     @Transactional
     @PutMapping("/edit/{uuid}")
-    public ResponseEntity editUser(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserUpdateDTO dto) {
+    public ResponseEntity editUser(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserUpdateDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.edit(uuid, username, dto.newEmail(), dto.newUsername(), dto.newPassword(), dto.newBirthDate());
         return ResponseEntity.accepted().build();
@@ -80,7 +91,7 @@ public class UserController {
     @Operation(summary = "Changes your user photo by id", description = "Changes the account image profile")
     @Transactional
     @PatchMapping("/edit/{uuid}")
-    public ResponseEntity changePhoto(@RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserPhotoDTO dto) {
+    public ResponseEntity changePhoto(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserPhotoDTO dto) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.changePhoto(uuid, username, dto.photo());
         return ResponseEntity.accepted().build();
@@ -89,7 +100,7 @@ public class UserController {
     @Operation(summary = "Deactivates your user by id", description = "Turn the user role to DEACTIVATED")
     @Transactional
     @DeleteMapping("/deactivate/{uuid}")
-    public ResponseEntity deactivateUser(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public ResponseEntity deactivateUser(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.deactivate(username, uuid);
         return ResponseEntity.noContent().build();
@@ -98,7 +109,7 @@ public class UserController {
     @Operation(summary = "Removes your user by id", description = "Excludes a user from database")
     @Transactional
     @DeleteMapping("/{uuid}")
-    public ResponseEntity deleteUser(@RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
+    public ResponseEntity deleteUser(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
         String username = JWT.decode(token.replace("Bearer ", "")).getSubject();
         servicePort.delete(username, uuid);
         return ResponseEntity.noContent().build();

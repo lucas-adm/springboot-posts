@@ -45,7 +45,7 @@ public class AnswerServiceImpl implements AnswerServicePort {
     public void remove(String username, UUID uuid) {
         Answer answer = repositoryPort.findAnswerById(uuid);
         if (!Objects.equals(answer.getUser().getUsername(), username)) {
-            throw new RuntimeException("Only the answer user can edit this answer.");
+            throw new RuntimeException("Only the answer user can delete this answer.");
         }
         repositoryPort.removeAnswer(answer);
     }
