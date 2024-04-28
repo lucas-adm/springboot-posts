@@ -41,12 +41,8 @@ public class CommentControllerTest {
     @Autowired
     private PostRepository postRepository;
 
-    @Autowired
-    private CommentRepository repository;
-
     @AfterEach
     public void cleanup() {
-        repository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();
     }

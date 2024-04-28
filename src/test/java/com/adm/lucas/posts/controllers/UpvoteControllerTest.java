@@ -40,12 +40,8 @@ public class UpvoteControllerTest {
     @Autowired
     private PostRepository postRepository;
 
-    @Autowired
-    private UpvoteRepository repository;
-
     @AfterEach
     public void cleanup() {
-        repository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();
     }

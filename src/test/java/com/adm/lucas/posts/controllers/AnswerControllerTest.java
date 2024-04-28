@@ -45,16 +45,8 @@ public class AnswerControllerTest {
     @Autowired
     private PostRepository postRepository;
 
-    @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
-    private AnswerRepository repository;
-
     @AfterEach
     public void cleanup() {
-        repository.deleteAll();
-        commentRepository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();
     }
