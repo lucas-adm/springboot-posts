@@ -38,7 +38,7 @@ public class UserEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.ACTIVATED;
+    private Role role = Role.DEACTIVATED;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

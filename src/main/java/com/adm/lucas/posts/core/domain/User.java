@@ -12,7 +12,7 @@ public class User {
     private String password;
     private Optional<String> photo;
     private LocalDate birthDate;
-    private Role role = Role.ACTIVATED;
+    private Role role = Role.DEACTIVATED;
 
     public User() {
     }
