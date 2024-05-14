@@ -3,6 +3,7 @@ package com.adm.lucas.posts.infra.exceptions;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -53,7 +54,18 @@ public class ControllerAdvice {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> uniqueValueAlreadyExists(DataIntegrityViolationException ex) {
+        if (ex.getMessage().contains("username")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists.");
+        }
+        if (ex.getMessage().contains("email")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists.");
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Data integrity violation: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
+    public ResponseEntity<String> findTwoReferences(IncorrectResultSizeDataAccessException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email or username are unavailable.");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

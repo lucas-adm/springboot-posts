@@ -36,7 +36,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         Optional<UserEntity> optionalEntity = repository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
         if (optionalEntity.isPresent()) {
             UserEntity entity = optionalEntity.get();
-            if (entity.getId() != user.getId()) {
+            if (entity.getId() != user.getId() && entity.getRole() == Role.ACTIVATED) {
                 throw new RuntimeException("Email or username are unavailable.");
             }
         }
@@ -64,7 +64,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public User findByUserUsername(String username) {
         UserEntity entity = repository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
-        if (entity.getRole() != Role.ACTIVATED) {
+        if (entity.getRole() == Role.DEACTIVATED) {
             throw new EntityNotFoundException();
         }
         return modelMapper.map(entity, User.class);
@@ -100,6 +100,9 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public String auth(String username, String password) {
         UserEntity entity = repository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
+        if (entity.getRole() == Role.DEACTIVATED) {
+            throw new EntityNotFoundException();
+        }
         boolean matches = passwordEncoder.matches(password, entity.getPassword());
         if (!matches) {
             throw new RuntimeException("Invalid password.");

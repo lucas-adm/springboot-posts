@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -35,6 +35,9 @@ public class CommentEntity {
     private LocalDateTime dateComment = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<AnswerEntity> answers;
+    private Set<AnswerEntity> answers;
+
+    @Column(nullable = false)
+    private int answerCount = 0;
 
 }

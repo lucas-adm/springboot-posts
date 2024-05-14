@@ -2,7 +2,7 @@ package com.adm.lucas.posts.core.domain;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Comment {
@@ -12,7 +12,8 @@ public class Comment {
     private Post post;
     private String text;
     private LocalDateTime dateComment = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
-    private List<Answer> answers;
+    private Set<Answer> answers;
+    private int answerCount = 0;
 
     public Comment() {
     }
@@ -63,12 +64,20 @@ public class Comment {
         this.dateComment = dateComment;
     }
 
-    public List<Answer> getAnswers() {
+    public Set<Answer> getAnswers() {
         return answers;
     }
 
-    public void setAnswers(List<Answer> answers) {
+    public void setAnswers(Set<Answer> answers) {
         this.answers = answers;
+    }
+
+    public int getAnswerCount() {
+        return answerCount;
+    }
+
+    public void setAnswerCount(int answerCount) {
+        this.answerCount = answerCount;
     }
 
 }

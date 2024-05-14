@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public record UserLoginDTO(
         @NotBlank(message = "cannot be blank")
-        @Size(min = 4, max = 25, message = "size must be between 4 and 25 .")
+        @Size(min = 4, max = 33, message = "size must be between 4 and 25 .")
         String username,
 
         @NotBlank(message = "cannot be blank")

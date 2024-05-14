@@ -24,8 +24,8 @@ public record PostsDTO(
                 post.getText(),
                 post.getDatePost().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm")),
                 post.getStatus(),
-                post.getUpvotes().size(),
-                post.getComments().size()
+                post.getUpvoteCount(),
+                post.getCommentCount()
         );
     }
 }

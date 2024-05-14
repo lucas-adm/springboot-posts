@@ -22,7 +22,7 @@ public class UserEntity implements UserDetails {
     @Id
     private UUID id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Column(unique = true, nullable = false)
@@ -38,7 +38,7 @@ public class UserEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.DEACTIVATED;
+    private Role role = Role.ACTIVATED;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

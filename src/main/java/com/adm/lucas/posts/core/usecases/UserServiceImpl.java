@@ -6,10 +6,7 @@ import com.adm.lucas.posts.core.ports.repositories.UserRepositoryPort;
 import com.adm.lucas.posts.core.ports.services.UserServicePort;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class UserServiceImpl implements UserServicePort {
 
@@ -46,7 +43,7 @@ public class UserServiceImpl implements UserServicePort {
         user.setUsername(newUsername);
         user.setPassword(newPassword);
         user.setBirthDate(newBirthDate);
-        repositoryPort.saveUser(user);
+        repositoryPort.registerUser(user);
     }
 
     @Override
@@ -75,6 +72,8 @@ public class UserServiceImpl implements UserServicePort {
         if (!Objects.equals(user.getUsername(), username)) {
             throw new RuntimeException("Only the user owner can edit this account.");
         }
+        int randomNumber = new Random().nextInt(100000);
+        user.setEmail(user.getEmail() + randomNumber);
         user.setRole(Role.DEACTIVATED);
         repositoryPort.saveUser(user);
     }

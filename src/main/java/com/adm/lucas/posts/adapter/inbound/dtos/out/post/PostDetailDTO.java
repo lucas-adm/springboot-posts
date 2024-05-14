@@ -33,7 +33,7 @@ public record PostDetailDTO(
                         comment.getUser().getPhoto().orElse(null),
                         comment.getText(),
                         comment.getDateComment().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm")),
-                        comment.getAnswers().size()
+                        comment.getAnswerCount()
                 )).toList()
         );
     }

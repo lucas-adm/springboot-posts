@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,6 +40,12 @@ public class PostEntity {
     private Set<UpvoteEntity> upvotes;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<CommentEntity> comments;
+    private Set<CommentEntity> comments;
+
+    @Column(nullable = false)
+    private int upvoteCount = 0;
+
+    @Column(nullable = false)
+    private int commentCount = 0;
 
 }

@@ -2,7 +2,6 @@ package com.adm.lucas.posts.core.domain;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,7 +14,9 @@ public class Post {
     private LocalDateTime datePost = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
     private Status status = Status.OPEN;
     private Set<Upvote> upvotes;
-    private List<Comment> comments;
+    private Set<Comment> comments;
+    private int upvoteCount = 0;
+    private int commentCount = 0;
 
     public Post() {
     }
@@ -82,12 +83,28 @@ public class Post {
         this.upvotes = upvotes;
     }
 
-    public List<Comment> getComments() {
+    public Set<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(List<Comment> comments) {
+    public void setComments(Set<Comment> comments) {
         this.comments = comments;
+    }
+
+    public int getUpvoteCount() {
+        return upvoteCount;
+    }
+
+    public void setUpvoteCount(int upvoteCount) {
+        this.upvoteCount = upvoteCount;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
     }
 
 }
