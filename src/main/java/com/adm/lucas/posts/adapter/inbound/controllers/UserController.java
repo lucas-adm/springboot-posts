@@ -76,7 +76,7 @@ public class UserController {
     @GetMapping("/activate/{uuid}")
     public ResponseEntity activateUser(@PathVariable UUID uuid) {
         servicePort.activate(uuid);
-        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("https://srs-posts.onrender.com")).build();
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("https://srs-posts.onrender.com/#/greetings")).build();
     }
 
     @Operation(summary = "Edit your user by id", description = "Only the owner account can use this method")

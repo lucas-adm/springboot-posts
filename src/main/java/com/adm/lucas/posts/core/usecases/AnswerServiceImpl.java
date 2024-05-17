@@ -24,7 +24,7 @@ public class AnswerServiceImpl implements AnswerServicePort {
         User user = repositoryPort.findUserByUsername(username);
         Comment comment = repositoryPort.findCommentById(uuid);
         if (comment.getPost().getStatus() == Status.CLOSED) {
-            throw new RuntimeException("This post is closed.");
+            throw new RuntimeException("Este post está fechado.");
         }
         Answer answer = new Answer(user, comment, text);
         repositoryPort.saveAnswer(answer);
@@ -35,7 +35,7 @@ public class AnswerServiceImpl implements AnswerServicePort {
     public void edit(String username, UUID uuid, String text) {
         Answer answer = repositoryPort.findAnswerById(uuid);
         if (!Objects.equals(answer.getUser().getUsername(), username)) {
-            throw new RuntimeException("Only the answer user can edit this answer.");
+            throw new RuntimeException("Apenas o criador da resposta pode editar a resposta.");
         }
         answer.setText(text);
         repositoryPort.saveAnswer(answer);
@@ -45,7 +45,7 @@ public class AnswerServiceImpl implements AnswerServicePort {
     public void remove(String username, UUID uuid) {
         Answer answer = repositoryPort.findAnswerById(uuid);
         if (!Objects.equals(answer.getUser().getUsername(), username)) {
-            throw new RuntimeException("Only the answer user can delete this answer.");
+            throw new RuntimeException("Apenas o criador da resposta pode deletar a resposta.");
         }
         repositoryPort.removeAnswer(answer);
     }

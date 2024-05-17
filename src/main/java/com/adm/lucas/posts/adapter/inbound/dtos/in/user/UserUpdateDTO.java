@@ -5,20 +5,20 @@ import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
 public record UserUpdateDTO(
-        @NotBlank(message = "cannot be blank")
-        @Email(message = "must be a valid email.")
+        @NotBlank(message = "não pode ser vazio")
+        @Email(message = "precisa ser um email válido.")
         String newEmail,
 
-        @NotBlank(message = "cannot be blank")
-        @Size(min = 4, max = 33, message = "size must have between 4 and 33 characters.")
+        @NotBlank(message = "não pode ser vazio")
+        @Size(min = 4, max = 33, message = "o tamanho deve estar entre 4 e 33 letras.")
         String newUsername,
 
-        @NotBlank(message = "cannot be blank")
-        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "must have lowercase letter, uppercase letter and number")
-        @Size(min = 4, max = 33, message = "size must have between 4 and 33 characters.")
+        @NotBlank(message = "não pode ser vazio")
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "necessário letra maiúscula, minúscula e número.")
+        @Size(min = 4, max = 33, message = "o tamanho deve estar entre 4 e 33 letras.")
         String newPassword,
 
-        @NotNull(message = "cannot be null")
-        @Past(message = "must be a valid date")
+        @NotNull(message = "não pode ser nulo")
+        @Past(message = "precisa ser uma data válida.")
         LocalDate newBirthDate) {
 }

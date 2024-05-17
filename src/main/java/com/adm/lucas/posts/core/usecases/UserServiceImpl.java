@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserServicePort {
     public void edit(UUID uuid, String username, String newEmail, String newUsername, String newPassword, LocalDate newBirthDate) {
         User user = repositoryPort.findUserById(uuid);
         if (!Objects.equals(user.getUsername(), username)) {
-            throw new RuntimeException("Only the user owner can edit this account.");
+            throw new RuntimeException("Apenas o próprio criador pode editar esta conta.");
         }
         user.setEmail(newEmail);
         user.setUsername(newUsername);
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserServicePort {
     public void changePhoto(UUID uuid, String username, String photo) {
         User user = repositoryPort.findUserById(uuid);
         if (!Objects.equals(user.getUsername(), username)) {
-            throw new RuntimeException("Only the user owner can edit this account.");
+            throw new RuntimeException("Apenas o próprio criador pode editar esta conta.");
         }
         user.setPhoto(Optional.ofNullable(photo));
         repositoryPort.saveUser(user);
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserServicePort {
     public void deactivate(String username, UUID uuid) {
         User user = repositoryPort.findUserById(uuid);
         if (!Objects.equals(user.getUsername(), username)) {
-            throw new RuntimeException("Only the user owner can edit this account.");
+            throw new RuntimeException("Apenas o próprio criador pode editar esta conta.");
         }
         int randomNumber = new Random().nextInt(100000);
         user.setEmail(user.getEmail() + randomNumber);
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserServicePort {
     public void delete(String username, UUID uuid) {
         User user = repositoryPort.findUserById(uuid);
         if (!Objects.equals(user.getUsername(), username)) {
-            throw new RuntimeException("Only the user owner can edit this account.");
+            throw new RuntimeException("Apenas o próprio criador pode editar esta conta.");
         }
         repositoryPort.deleteUser(user);
     }

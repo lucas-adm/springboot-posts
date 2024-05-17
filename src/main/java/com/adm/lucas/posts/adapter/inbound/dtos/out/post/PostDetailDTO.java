@@ -6,6 +6,7 @@ import com.adm.lucas.posts.core.domain.Status;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public record PostDetailDTO(
@@ -24,7 +25,7 @@ public record PostDetailDTO(
                 post.getUsername(),
                 post.getUser().getPhoto().orElse(null),
                 post.getText(),
-                post.getDatePost().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm")),
+                post.getDatePost().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm", new Locale("pt", "BR"))),
                 post.getStatus(),
                 post.getUpvotes().size(),
                 post.getComments().stream().map(comment -> new CommentDetailDTO(
@@ -32,7 +33,7 @@ public record PostDetailDTO(
                         comment.getUser().getUsername(),
                         comment.getUser().getPhoto().orElse(null),
                         comment.getText(),
-                        comment.getDateComment().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm")),
+                        comment.getDateComment().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm", new Locale("pt", "BR"))),
                         comment.getAnswerCount()
                 )).toList()
         );

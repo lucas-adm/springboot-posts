@@ -31,13 +31,13 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public void registerUser(User user) {
         if (Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 12) {
-            throw new RuntimeException("User must be at least 12 years old.");
+            throw new RuntimeException("Usuário precisa ter ao menos 12 anos.");
         }
         Optional<UserEntity> optionalEntity = repository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
         if (optionalEntity.isPresent()) {
             UserEntity entity = optionalEntity.get();
             if (entity.getId() != user.getId() && entity.getRole() == Role.ACTIVATED) {
-                throw new RuntimeException("Email or username are unavailable.");
+                throw new RuntimeException("Email ou usuário indisponível.");
             }
         }
         UserEntity entity = modelMapper.map(user, UserEntity.class);
@@ -48,13 +48,13 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public void saveUser(User user) {
         if (Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 12) {
-            throw new RuntimeException("User must be at least 12 years old.");
+            throw new RuntimeException("Usuário precisa ter ao menos 12 anos.");
         }
         Optional<UserEntity> optionalEntity = repository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
         if (optionalEntity.isPresent()) {
             UserEntity entity = optionalEntity.get();
             if (entity.getId() != user.getId()) {
-                throw new RuntimeException("Email or username are unavailable.");
+                throw new RuntimeException("Email ou usuário indisponível.");
             }
         }
         UserEntity entity = modelMapper.map(user, UserEntity.class);
@@ -105,7 +105,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         }
         boolean matches = passwordEncoder.matches(password, entity.getPassword());
         if (!matches) {
-            throw new RuntimeException("Invalid password.");
+            throw new RuntimeException("Senha inválida.");
         }
         return tokenService.generateToken(entity);
     }

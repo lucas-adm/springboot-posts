@@ -23,7 +23,7 @@ public class CommentServiceImpl implements CommentServicePort {
         User user = repositoryPort.findUserByUsername(username);
         Post post = repositoryPort.findPostById(uuid);
         if (post.getStatus() == Status.CLOSED) {
-            throw new RuntimeException("This post is closed.");
+            throw new RuntimeException("Este post está fechado.");
         }
         Comment comment = new Comment(user, post, text);
         repositoryPort.saveComment(comment);
@@ -34,7 +34,7 @@ public class CommentServiceImpl implements CommentServicePort {
     public void edit(String username, UUID uuid, String text) {
         Comment comment = repositoryPort.findCommentById(uuid);
         if (!Objects.equals(comment.getUser().getUsername(), username)) {
-            throw new RuntimeException("Only the comment user can edit this comment.");
+            throw new RuntimeException("Apenas o criador do comentário pode editar o comentário.");
         }
         comment.setText(text);
         repositoryPort.saveComment(comment);
@@ -44,7 +44,7 @@ public class CommentServiceImpl implements CommentServicePort {
     public void remove(String username, UUID uuid) {
         Comment comment = repositoryPort.findCommentById(uuid);
         if (!Objects.equals(comment.getUser().getUsername(), username)) {
-            throw new RuntimeException("Only the comment user can delete this comment.");
+            throw new RuntimeException("Apenas o criador do comentário pode deletar o comentário.");
         }
         repositoryPort.removeComment(comment);
     }

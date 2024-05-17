@@ -30,7 +30,7 @@ public class PostServiceImpl implements PostServicePort {
     public void edit(UUID uuid, String username, String text) {
         Post post = repositoryPort.findPostById(uuid);
         if (!Objects.equals(post.getUsername(), username)) {
-            throw new RuntimeException("Only the post user can edit this post.");
+            throw new RuntimeException("Apenas o criador do post pode editar o post.");
         }
         post.setText(text);
         repositoryPort.savePost(post);
@@ -40,7 +40,7 @@ public class PostServiceImpl implements PostServicePort {
     public void close(UUID uuid, String username) {
         Post post = repositoryPort.findPostById(uuid);
         if (!Objects.equals(post.getUsername(), username)) {
-            throw new RuntimeException("Only the post user can edit this post.");
+            throw new RuntimeException("Apenas o criador do post pode editar o post.");
         }
         post.setStatus(Status.CLOSED);
         repositoryPort.savePost(post);
@@ -50,7 +50,7 @@ public class PostServiceImpl implements PostServicePort {
     public void delete(UUID uuid, String username) {
         Post post = repositoryPort.findPostById(uuid);
         if (!Objects.equals(post.getUsername(), username)) {
-            throw new RuntimeException("Only the post user can delete this post.");
+            throw new RuntimeException("Apenas o criador do post pode editar o post.");
         }
         repositoryPort.removePost(post);
     }

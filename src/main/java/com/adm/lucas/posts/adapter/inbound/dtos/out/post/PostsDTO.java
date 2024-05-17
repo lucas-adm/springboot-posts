@@ -4,6 +4,7 @@ import com.adm.lucas.posts.core.domain.Post;
 import com.adm.lucas.posts.core.domain.Status;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.UUID;
 
 public record PostsDTO(
@@ -22,7 +23,7 @@ public record PostsDTO(
                 post.getUsername(),
                 post.getUser().getPhoto().orElse(null),
                 post.getText(),
-                post.getDatePost().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm")),
+                post.getDatePost().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm", new Locale("pt", "BR"))),
                 post.getStatus(),
                 post.getUpvoteCount(),
                 post.getCommentCount()
