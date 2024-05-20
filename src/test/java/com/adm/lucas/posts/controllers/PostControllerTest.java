@@ -51,7 +51,7 @@ public class PostControllerTest {
 
     private static final String VALID_USER_JSON = """
             {
-                "email": "lucasgammmer123456@outlook.com",
+                "email": "ameikameikaeiaea@outlook.com",
                 "username": "Lucas",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
@@ -60,17 +60,8 @@ public class PostControllerTest {
 
     private static final String SECOND_VALID_USER_JSON = """
             {
-                "email": "lucasgammmer456789@outlook.com",
+                "email": "eopaoeiaenuaienani@outlook.com",
                 "username": "Segundo Lucas",
-                "password": "Senha123",
-                "birthDate": "2002-06-22"
-            }
-            """;
-
-    private static final String THIRD_VALID_USER_JSON = """
-            {
-                "email": "lucasgammmer999999@outlook.com",
-                "username": "Terceiro",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
             }
@@ -86,13 +77,6 @@ public class PostControllerTest {
     private static final String SECOND_VALID_LOGIN_JSON = """
             {
                 "username": "Segundo Lucas",
-                "password": "Senha123"
-            }
-            """;
-
-    private static final String THIRD_VALID_LOGIN_JSON = """
-            {
-                "username": "Terceiro",
                 "password": "Senha123"
             }
             """;
@@ -141,13 +125,6 @@ public class PostControllerTest {
         UUID id = objectMapper.readValue(register.getContentAsString(), UserDetailDTO.class).id();
         mvc.perform(get("/users/activate/{uuid}", id));
         var response = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_LOGIN_JSON)).andReturn().getResponse();
-        UserTokenDTO dto = objectMapper.readValue(response.getContentAsString(), UserTokenDTO.class);
-        token = dto.token();
-    }
-
-    public void loginWithUserNotActivated() throws Exception {
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(THIRD_VALID_USER_JSON));
-        var response = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(THIRD_VALID_LOGIN_JSON)).andReturn().getResponse();
         UserTokenDTO dto = objectMapper.readValue(response.getContentAsString(), UserTokenDTO.class);
         token = dto.token();
     }
@@ -203,21 +180,6 @@ public class PostControllerTest {
     public void createPost_whenPostIsValidButNotAuthorized_receiveForbiddenAndUserPostsSize0() throws Exception {
         loginWithFirstUserActivated();
         var response = mvc.perform(post("/posts").contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var list = mvc.perform(get("/posts/{username}", "Lucas")).andReturn().getResponse();
-        List<PostsDTO> posts = objectMapper.readValue(list.getContentAsString(), new TypeReference<List<PostsDTO>>() {
-        });
-        assertThat(posts.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void createPost_whenPostIsValidButUserIsNotActivated_receiveForbiddenAndUserPostsSize0() throws Exception {
-        loginWithUserNotActivated();
-        var response = mvc.perform(post("/posts")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
 
@@ -369,26 +331,6 @@ public class PostControllerTest {
         assertThat(text).isEqualTo(dto.text());
     }
 
-    @Test
-    public void editPost_whenUserIsAuthorizedButNotActivated_receiveForbiddenAndKeepsStatus() throws Exception {
-        loginWithFirstUserActivated();
-        var created = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-        var dto = objectMapper.readValue(created.getContentAsString(), PostCreatedDTO.class);
-
-        loginWithUserNotActivated();
-        var response = mvc.perform(put("/posts/post/{uuid}", dto.id())
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_EDIT_POST)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var post = mvc.perform(get("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
-        String text = objectMapper.readValue(post.getContentAsString(), PostDetailDTO.class).text();
-
-        assertThat(text).isEqualTo(dto.text());
-    }
-
     // Patch
 
     @Test
@@ -454,25 +396,6 @@ public class PostControllerTest {
         assertThat(status).isEqualTo(dto.status());
     }
 
-    @Test
-    public void patchPost_whenUserIsAuthorizedButNotActivated_receiveForbiddenAndKeepsStatus() throws Exception {
-        loginWithFirstUserActivated();
-        var created = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-        var dto = objectMapper.readValue(created.getContentAsString(), PostCreatedDTO.class);
-
-        loginWithUserNotActivated();
-        var response = mvc.perform(patch("/posts/post/{uuid}", dto.id())
-                .header("Authorization", "Bearer " + token)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var post = mvc.perform(get("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
-        Status status = objectMapper.readValue(post.getContentAsString(), PostDetailDTO.class).status();
-
-        assertThat(status).isEqualTo(dto.status());
-    }
-
     // Delete
 
     @Test
@@ -529,26 +452,6 @@ public class PostControllerTest {
         var dto = objectMapper.readValue(created.getContentAsString(), PostCreatedDTO.class);
 
         var response = mvc.perform(delete("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var post = mvc.perform(get("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
-        var detail = objectMapper.readValue(post.getContentAsString(), PostDetailDTO.class);
-
-        assertThat(post.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(dto.id()).isEqualTo(detail.id());
-    }
-
-    @Test
-    public void deletePost_whenUserIsAuthorizedButNotActivated_receiveForbiddenAndPostExists() throws Exception {
-        loginWithFirstUserActivated();
-        var created = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-        var dto = objectMapper.readValue(created.getContentAsString(), PostCreatedDTO.class);
-
-        loginWithUserNotActivated();
-        var response = mvc.perform(delete("/posts/post/{uuid}", dto.id())
-                .header("Authorization", "Bearer " + token)).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
 

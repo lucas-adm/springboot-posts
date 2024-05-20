@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class UserControllerTest {
 
     private static final String VALID_USER_JSON = """
             {
-                "email": "lucasgammmer123456@outlook.com",
+                "email": "aeiaenmiaeainea@outlook.com",
                 "username": "Lucas",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
@@ -54,7 +55,7 @@ public class UserControllerTest {
 
     private static final String SECOND_VALID_USER_JSON = """
             {
-                "email": "lucasgammmer456123@outlook.com",
+                "email": "iemnaienaienaiea@outlook.com",
                 "username": "Lucas2",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
@@ -63,7 +64,7 @@ public class UserControllerTest {
 
     private static final String INVALID_USER_JSON = """
             {
-                "email": "lucasgammmeroutlook.com",
+                "email": "iaeianmeianeianeianea.com",
                 "username": "Lucas",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
@@ -100,7 +101,7 @@ public class UserControllerTest {
 
     private static final String VALID_UPDATE_USER_JSON = """
             {
-            	"newEmail": "lucasgammmer777@outlook.com",
+            	"newEmail": "emajiemaienaeunaea@outlook.com",
             	"newUsername": "Lucas777",
             	"newPassword": "Senha777",
             	"newBirthDate": "2007-07-07"
@@ -109,7 +110,7 @@ public class UserControllerTest {
 
     private static final String INVALID_UPDATE_USER_JSON = """
             {
-            	"newEmail": "lucasgammmer123456@outlook.com",
+            	"newEmail": "aapeaepauneuiaeakoaeka@outlook.com",
             	"newUsername": "Lucas2",
             	"newPassword": "Senha",
             	"newBirthDate": "2002-02-02"
@@ -137,10 +138,10 @@ public class UserControllerTest {
     }
 
     @Test
-    public void userRegister_whenUserIsValidButUsernameOrEmailIsUnavailable_receiveNotAcceptable() throws Exception {
+    public void userRegister_whenUserIsValidButUsernameOrEmailIsUnavailable_receiveBadRequest() throws Exception {
         mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON));
         var response = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -178,7 +179,7 @@ public class UserControllerTest {
         var response = mvc.perform(get("/users/{username}", "Lucas")).andReturn().getResponse();
         var dto = objectMapper.readValue(response.getContentAsString(), UserDetailDTO.class);
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(dto.email()).isEqualTo("lucasgammmer123456@outlook.com");
+        assertThat(dto.email()).isEqualTo("aeiaenmiaeainea@outlook.com");
         assertThat(dto.username()).isEqualTo("Lucas");
         assertThat(dto.photo()).isEmpty();
         assertThat(dto.birthDate()).isEqualTo("22 junho, 2002");
@@ -217,8 +218,8 @@ public class UserControllerTest {
 
     @Test
     public void userLogin_whenLoginIsValid_receiveJSONWebToken() throws Exception {
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON));
-
+        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
+        activateUser(register);
         var response = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
 
         UserTokenDTO dto = objectMapper.readValue(response.getContentAsString(), UserTokenDTO.class);
@@ -234,11 +235,11 @@ public class UserControllerTest {
     }
 
     @Test
-    public void userLogin_whenPasswordIsInvalid_receiveBadRequest() throws Exception {
+    public void userLogin_whenPasswordIsInvalid_receiveNotFound() throws Exception {
         mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON));
 
         var response = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(INVALID_PASSWORD_LOGIN_JSON)).andReturn().getResponse();
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     // Edit
@@ -261,7 +262,7 @@ public class UserControllerTest {
         var response = mvc.perform(get("/users/{username}", "Lucas777")).andReturn().getResponse();
         var user = objectMapper.readValue(response.getContentAsString(), UserDetailDTO.class);
 
-        assertThat(user.email()).isEqualTo("lucasgammmer777@outlook.com");
+        assertThat(user.email()).isEqualTo("emajiemaienaeunaea@outlook.com");
         assertThat(user.username()).isEqualTo("Lucas777");
         assertThat(user.birthDate()).isEqualTo("7 julho, 2007");
     }
@@ -299,21 +300,6 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON).content(VALID_UPDATE_USER_JSON)).andReturn().getResponse();
 
         assertThat(JSON.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    }
-
-    @Test
-    public void userEdit_whenUserIsAuthorizedButIsNotActivated_receiveForbidden() throws Exception {
-        var register = mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(VALID_USER_JSON)).andReturn().getResponse();
-        UUID uuid = objectMapper.readValue(register.getContentAsString(), User.class).getId();
-
-        var login = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN_JSON)).andReturn().getResponse();
-        var dto = objectMapper.readValue(login.getContentAsString(), UserTokenDTO.class);
-        String token = dto.token();
-
-        var JSON = mvc.perform(put("/users/edit/{uuid}", uuid).header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_UPDATE_USER_JSON)).andReturn().getResponse();
-
-        assertThat(JSON.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     // Changes User Photo

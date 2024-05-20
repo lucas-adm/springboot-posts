@@ -5,8 +5,6 @@ import com.adm.lucas.posts.adapter.inbound.dtos.out.comment.CommentCreatedDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.post.PostCreatedDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.user.UserDetailDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.user.UserTokenDTO;
-import com.adm.lucas.posts.adapter.inbound.repositories.AnswerRepository;
-import com.adm.lucas.posts.adapter.inbound.repositories.CommentRepository;
 import com.adm.lucas.posts.adapter.inbound.repositories.PostRepository;
 import com.adm.lucas.posts.adapter.inbound.repositories.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -53,7 +51,7 @@ public class AnswerControllerTest {
 
     private static final String VALID_USER_JSON = """
             {
-                "email": "lucasgammmer123456@outlook.com",
+                "email": "asnineauiehnuathss@outlook.com",
                 "username": "Lucas",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
@@ -62,17 +60,8 @@ public class AnswerControllerTest {
 
     private static final String SECOND_VALID_USER_JSON = """
             {
-                "email": "lucasgammmer456789@outlook.com",
+                "email": "aienaienaneaakeoi@outlook.com",
                 "username": "Segundo Lucas",
-                "password": "Senha123",
-                "birthDate": "2002-06-22"
-            }
-            """;
-
-    private static final String THIRD_VALID_USER_JSON = """
-            {
-                "email": "lucasgammmer999999@outlook.com",
-                "username": "Terceiro",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
             }
@@ -88,13 +77,6 @@ public class AnswerControllerTest {
     private static final String SECOND_VALID_LOGIN_JSON = """
             {
                 "username": "Segundo Lucas",
-                "password": "Senha123"
-            }
-            """;
-
-    private static final String THIRD_VALID_LOGIN_JSON = """
-            {
-                "username": "Terceiro",
                 "password": "Senha123"
             }
             """;
@@ -161,13 +143,6 @@ public class AnswerControllerTest {
         token = dto.token();
     }
 
-    public void loginWithUserNotActivated() throws Exception {
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(THIRD_VALID_USER_JSON));
-        var response = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(THIRD_VALID_LOGIN_JSON)).andReturn().getResponse();
-        UserTokenDTO dto = objectMapper.readValue(response.getContentAsString(), UserTokenDTO.class);
-        token = dto.token();
-    }
-
     @BeforeEach
     public void setup() throws Exception {
         loginWithFirstUserActivated();
@@ -210,19 +185,6 @@ public class AnswerControllerTest {
     @Test
     public void answerComment_whenTextIsValidButUserIsNotAuthenticated_receiveForbiddenAndAnswersSize0() throws Exception {
         var response = mvc.perform(post("/posts/post/comments/{uuid}", idComment)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_ANSWER)).andReturn().getResponse();
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var page = mvc.perform(get("/posts/post/comments/{uuid}", idComment)).andReturn().getResponse();
-        List<AnswerDetailDTO> answers = objectMapper.readValue(page.getContentAsString(), new TypeReference<List<AnswerDetailDTO>>() {
-        });
-        assertThat(answers.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void answerComment_whenTextIsValidAndUserIsAuthenticatedButNotActivated_receiveForbiddenAndAnswersSize0() throws Exception {
-        loginWithUserNotActivated();
-        var response = mvc.perform(post("/posts/post/comments/{uuid}", idComment).header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(VALID_ANSWER)).andReturn().getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
 
@@ -291,19 +253,6 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void editAnswer_whenTextIsValidAndUserIsAuthenticatedButNotActivated_receiveForbidden() throws Exception {
-        var answer = mvc.perform(post("/posts/post/comments/{uuid}", idComment).header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_ANSWER)).andReturn().getResponse();
-        UUID idAnswer = objectMapper.readValue(answer.getContentAsString(), AnswerDetailDTO.class).id();
-
-        loginWithUserNotActivated();
-        var response = mvc.perform(patch("/posts/post/comments/answers/{uuid}", idAnswer).header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_PATCH_ANSWER)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
     public void editAnswer_whenTextIsValidAndUserIsAuthenticatedButCommentNotExists_receiveNotFound() throws Exception {
         var response = mvc.perform(patch("/posts/post/comments/answers/{uuid}", INVALID_ID).header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(VALID_PATCH_ANSWER)).andReturn().getResponse();
@@ -353,23 +302,6 @@ public class AnswerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON).content(VALID_ANSWER)).andReturn().getResponse();
         UUID idAnswer = objectMapper.readValue(answer.getContentAsString(), AnswerDetailDTO.class).id();
 
-        var response = mvc.perform(delete("/posts/post/comments/answers/{uuid}", idAnswer)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var page = mvc.perform(get("/posts/post/comments/{uuid}", idComment)).andReturn().getResponse();
-        List<AnswerDetailDTO> answers = objectMapper.readValue(page.getContentAsString(), new TypeReference<List<AnswerDetailDTO>>() {
-        });
-        assertThat(answers.size()).isEqualTo(1);
-    }
-
-    @Test
-    public void deleteAnswer_whenUserIsAuthenticatedButNotActivated_receiveForbidden() throws Exception {
-        var answer = mvc.perform(post("/posts/post/comments/{uuid}", idComment).header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_ANSWER)).andReturn().getResponse();
-        UUID idAnswer = objectMapper.readValue(answer.getContentAsString(), AnswerDetailDTO.class).id();
-
-        loginWithUserNotActivated();
         var response = mvc.perform(delete("/posts/post/comments/answers/{uuid}", idAnswer)).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());

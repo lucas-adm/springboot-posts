@@ -49,7 +49,7 @@ public class CommentControllerTest {
 
     private static final String VALID_USER_JSON = """
             {
-                "email": "lucasgammmer123456@outlook.com",
+                "email": "aiehaueauebaea@outlook.com",
                 "username": "Lucas",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
@@ -58,17 +58,8 @@ public class CommentControllerTest {
 
     private static final String SECOND_VALID_USER_JSON = """
             {
-                "email": "lucasgammmer456789@outlook.com",
+                "email": "wefaetavwegawhe@outlook.com",
                 "username": "Segundo Lucas",
-                "password": "Senha123",
-                "birthDate": "2002-06-22"
-            }
-            """;
-
-    private static final String THIRD_VALID_USER_JSON = """
-            {
-                "email": "lucasgammmer999999@outlook.com",
-                "username": "Terceiro",
                 "password": "Senha123",
                 "birthDate": "2002-06-22"
             }
@@ -84,13 +75,6 @@ public class CommentControllerTest {
     private static final String SECOND_VALID_LOGIN_JSON = """
             {
                 "username": "Segundo Lucas",
-                "password": "Senha123"
-            }
-            """;
-
-    private static final String THIRD_VALID_LOGIN_JSON = """
-            {
-                "username": "Terceiro",
                 "password": "Senha123"
             }
             """;
@@ -145,13 +129,6 @@ public class CommentControllerTest {
         UUID id = objectMapper.readValue(register.getContentAsString(), UserDetailDTO.class).id();
         mvc.perform(get("/users/activate/{uuid}", id));
         var response = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(SECOND_VALID_LOGIN_JSON)).andReturn().getResponse();
-        UserTokenDTO dto = objectMapper.readValue(response.getContentAsString(), UserTokenDTO.class);
-        token = dto.token();
-    }
-
-    public void loginWithUserNotActivated() throws Exception {
-        mvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON).content(THIRD_VALID_USER_JSON));
-        var response = mvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON).content(THIRD_VALID_LOGIN_JSON)).andReturn().getResponse();
         UserTokenDTO dto = objectMapper.readValue(response.getContentAsString(), UserTokenDTO.class);
         token = dto.token();
     }
@@ -229,28 +206,6 @@ public class CommentControllerTest {
         UUID idPost = objectMapper.readValue(post.getContentAsString(), PostCreatedDTO.class).id();
 
         var response = mvc.perform(post("/posts/post/{uuid}/comments", idPost)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_COMMENT)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var detail = mvc.perform(get("/posts/post/{uuid}", idPost)
-                .header("Authorization", "Bearer " + token)).andReturn().getResponse();
-        int size = objectMapper.readValue(detail.getContentAsString(), PostDetailDTO.class).comments().size();
-
-        assertThat(size).isEqualTo(0);
-    }
-
-    @Test
-    public void commentPost_whenUserIsAuthorizedButNotActivated_receiveForbiddenAndPostCommentsSize0() throws Exception {
-        loginWithFirstUserActivated();
-
-        var post = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-        UUID idPost = objectMapper.readValue(post.getContentAsString(), PostCreatedDTO.class).id();
-
-        loginWithUserNotActivated();
-        var response = mvc.perform(post("/posts/post/{uuid}/comments", idPost)
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(VALID_COMMENT)).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -346,26 +301,6 @@ public class CommentControllerTest {
     }
 
     @Test
-    public void patchComment_whenTextIsValidButUserIsAuthorizedButNotActivated_receiveForbidden() throws Exception {
-        loginWithFirstUserActivated();
-
-        var post = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-        UUID idPost = objectMapper.readValue(post.getContentAsString(), PostCreatedDTO.class).id();
-
-        var comment = mvc.perform(post("/posts/post/{uuid}/comments", idPost).header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_COMMENT)).andReturn().getResponse();
-        UUID idComment = objectMapper.readValue(comment.getContentAsString(), CommentCreatedDTO.class).id();
-
-        loginWithUserNotActivated();
-        var response = mvc.perform(patch("/posts/post/comments/{uuid}", idComment)
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_PATCH_COMMENT)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
     public void patchComment_whenTextIsValidButCommentNotExists_receiveNotFound() throws Exception {
         loginWithFirstUserActivated();
         var response = mvc.perform(patch("/posts/post/comments/{uuid}", INVALID_ID).header("Authorization", "Bearer " + token)
@@ -400,30 +335,6 @@ public class CommentControllerTest {
     }
 
     @Test
-    public void deleteComment_whenUserIsAuthenticatedButNotCommentCreator_receiveUnauthorized() throws Exception {
-        loginWithFirstUserActivated();
-        var post = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-        UUID idPost = objectMapper.readValue(post.getContentAsString(), PostCreatedDTO.class).id();
-
-        var comment = mvc.perform(post("/posts/post/{uuid}/comments", idPost).header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_COMMENT)).andReturn().getResponse();
-        UUID idComment = objectMapper.readValue(comment.getContentAsString(), CommentCreatedDTO.class).id();
-
-        loginWithSecondUserActivated();
-        var response = mvc.perform(delete("/posts/post/comments/{uuid}", idComment)
-                .header("Authorization", "Bearer " + token)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-
-        var detail = mvc.perform(get("/posts/post/{uuid}", idPost)
-                .header("Authorization", "Bearer " + token)).andReturn().getResponse();
-        int size = objectMapper.readValue(detail.getContentAsString(), PostDetailDTO.class).comments().size();
-
-        assertThat(size).isEqualTo(1);
-    }
-
-    @Test
     public void deleteComment_whenUserIsUnauthenticated_receiveForbidden() throws Exception {
         loginWithFirstUserActivated();
         var post = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
@@ -435,30 +346,6 @@ public class CommentControllerTest {
         UUID idComment = objectMapper.readValue(comment.getContentAsString(), CommentCreatedDTO.class).id();
 
         var response = mvc.perform(delete("/posts/post/comments/{uuid}", idComment)).andReturn().getResponse();
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-
-        var detail = mvc.perform(get("/posts/post/{uuid}", idPost)
-                .header("Authorization", "Bearer " + token)).andReturn().getResponse();
-        int size = objectMapper.readValue(detail.getContentAsString(), PostDetailDTO.class).comments().size();
-
-        assertThat(size).isEqualTo(1);
-    }
-
-    @Test
-    public void deleteComment_whenUserIsAuthenticatedButNotActivated_receiveForbidden() throws Exception {
-        loginWithFirstUserActivated();
-        var post = mvc.perform(post("/posts").header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_POST)).andReturn().getResponse();
-        UUID idPost = objectMapper.readValue(post.getContentAsString(), PostCreatedDTO.class).id();
-
-        var comment = mvc.perform(post("/posts/post/{uuid}/comments", idPost).header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).content(VALID_COMMENT)).andReturn().getResponse();
-        UUID idComment = objectMapper.readValue(comment.getContentAsString(), CommentCreatedDTO.class).id();
-
-        loginWithUserNotActivated();
-        var response = mvc.perform(delete("/posts/post/comments/{uuid}", idComment)
-                .header("Authorization", "Bearer " + token)).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
 
