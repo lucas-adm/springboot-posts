@@ -4,7 +4,11 @@ RUN apt-get update && apt-get install -y openjdk-17-jdk
 
 COPY . .
 
-RUN chmod +x mvnw && ./mvnw clean install -DskipTests
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
+
+ARG TESTS_RBBTMQ_ADDRESSES
+
+RUN ./mvnw clean install -DTESTS_RBBTMQ_ADDRESSES=${TESTS_RBBTMQ_ADDRESSES}
 
 FROM openjdk:17-jdk-slim
 
