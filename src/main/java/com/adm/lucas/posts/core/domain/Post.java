@@ -9,7 +9,6 @@ public class Post {
 
     private UUID id = UUID.randomUUID();
     private User user;
-    private String username;
     private String text;
     private LocalDateTime datePost = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
     private Status status = Status.OPEN;
@@ -24,7 +23,6 @@ public class Post {
     public Post(User user, String text) {
         this.user = user;
         this.text = text;
-        this.username = user.getUsername();
     }
 
     public UUID getId() {
@@ -41,14 +39,6 @@ public class Post {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getText() {

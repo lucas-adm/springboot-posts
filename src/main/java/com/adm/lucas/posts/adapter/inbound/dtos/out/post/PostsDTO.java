@@ -20,7 +20,7 @@ public record PostsDTO(
     public PostsDTO(Post post) {
         this(
                 post.getId(),
-                post.getUsername(),
+                post.getUser().getUsername(),
                 post.getUser().getPhoto().orElse(null),
                 post.getText(),
                 post.getDatePost().format(DateTimeFormatter.ofPattern("d MMMM,yy HH:mm", new Locale("pt", "BR"))),

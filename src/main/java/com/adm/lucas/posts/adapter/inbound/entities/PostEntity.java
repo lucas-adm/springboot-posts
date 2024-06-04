@@ -19,12 +19,9 @@ public class PostEntity {
     @Id
     private UUID id = UUID.randomUUID();
 
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "id_user", nullable = false)
     @ManyToOne
     private UserEntity user;
-
-    @Column(nullable = false)
-    private String username;
 
     @Column(name = "date_post", nullable = false)
     private LocalDateTime datePost = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));

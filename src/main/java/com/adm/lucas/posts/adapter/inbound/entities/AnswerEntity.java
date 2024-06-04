@@ -19,11 +19,11 @@ public class AnswerEntity {
     @Id
     private UUID id = UUID.randomUUID();
 
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "id_user", nullable = false)
     @ManyToOne
     private UserEntity user;
 
-    @JoinColumn(name = "comment", nullable = false)
+    @JoinColumn(name = "id_comment", nullable = false)
     @ManyToOne
     private CommentEntity comment;
 

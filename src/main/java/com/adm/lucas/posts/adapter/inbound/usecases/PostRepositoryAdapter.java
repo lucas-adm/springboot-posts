@@ -50,7 +50,7 @@ public class PostRepositoryAdapter implements PostRepositoryPort {
     public List<Post> findPostsByUsername(String username, int page, int size, String sortBy, String sortOrder) {
         Sort.Direction order = sortOrder.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(order, sortBy);
-        return repository.findPostsByUsername(username, PageRequest.of(page, size, sort)).stream().map(postEntity -> modelMapper.map(postEntity, Post.class)).toList();
+        return repository.findByUserUsername(username, PageRequest.of(page, size, sort)).stream().map(postEntity -> modelMapper.map(postEntity, Post.class)).toList();
     }
 
     @Override

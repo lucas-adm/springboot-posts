@@ -29,7 +29,7 @@ public class PostServiceImpl implements PostServicePort {
     @Override
     public void edit(UUID uuid, String username, String text) {
         Post post = repositoryPort.findPostById(uuid);
-        if (!Objects.equals(post.getUsername(), username)) {
+        if (!Objects.equals(post.getUser().getUsername(), username)) {
             throw new RuntimeException("Apenas o criador do post pode editar o post.");
         }
         post.setText(text);
@@ -39,7 +39,7 @@ public class PostServiceImpl implements PostServicePort {
     @Override
     public void close(UUID uuid, String username) {
         Post post = repositoryPort.findPostById(uuid);
-        if (!Objects.equals(post.getUsername(), username)) {
+        if (!Objects.equals(post.getUser().getUsername(), username)) {
             throw new RuntimeException("Apenas o criador do post pode editar o post.");
         }
         post.setStatus(Status.CLOSED);
@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostServicePort {
     @Override
     public void delete(UUID uuid, String username) {
         Post post = repositoryPort.findPostById(uuid);
-        if (!Objects.equals(post.getUsername(), username)) {
+        if (!Objects.equals(post.getUser().getUsername(), username)) {
             throw new RuntimeException("Apenas o criador do post pode editar o post.");
         }
         repositoryPort.removePost(post);

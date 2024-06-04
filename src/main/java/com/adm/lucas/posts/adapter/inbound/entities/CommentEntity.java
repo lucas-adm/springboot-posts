@@ -20,11 +20,11 @@ public class CommentEntity {
     @Id
     private UUID id = UUID.randomUUID();
 
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "id_user", nullable = false)
     @ManyToOne
     private UserEntity user;
 
-    @JoinColumn(name = "post", nullable = false)
+    @JoinColumn(name = "id_post", nullable = false)
     @ManyToOne
     private PostEntity post;
 
