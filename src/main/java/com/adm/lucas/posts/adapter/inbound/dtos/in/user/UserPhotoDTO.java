@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record UserPhotoDTO(
-        @NotBlank(message = "não pode ser vazio") @Size(min = 1, max = 255, message = "o tamanho não pode ultrapassar 255 caracteres.") String photo
+        @NotBlank(message = "não pode ser vazio") String photo
 ) {
 }

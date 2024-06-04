@@ -31,6 +31,7 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(columnDefinition = "text")
     private String photo;
 
     @Column(nullable = false)

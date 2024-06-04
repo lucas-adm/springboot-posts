@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users", description = "Retrieves a list of all activated users")
+    @Cacheable(value = "users")
     @GetMapping
     public ResponseEntity<List<UserDetailDTO>> getAllUser() {
         List<User> users = servicePort.listAll();
@@ -53,6 +56,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get a user by username", description = "Retrieves a user account")
+    @Cacheable(value = "user", key = "#username")
     @GetMapping("/{username}")
     public ResponseEntity<UserDetailDTO> findUser(@PathVariable String username) {
         User user = servicePort.findByUsername(username);
@@ -61,6 +65,7 @@ public class UserController {
     }
 
     @Operation(summary = "Register a user", description = "Creates a new user account if email or username is available. Feel free to use your real email to get a greetings message 🙃. \n This app has already a demo user to make the login if you want, visit de login endpoint.")
+    @CacheEvict(value = "users", allEntries = true)
     @Transactional
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody @Valid UserRegisterDTO dto, UriComponentsBuilder uriComponentsBuilder) {
@@ -80,6 +85,7 @@ public class UserController {
     }
 
     @Operation(summary = "Edit your user by id", description = "Only the owner account can use this method")
+    @CacheEvict(value = {"users", "user"}, key = "#username", allEntries = true)
     @Transactional
     @PutMapping("/edit/{uuid}")
     public ResponseEntity editUser(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserUpdateDTO dto) {
@@ -89,6 +95,7 @@ public class UserController {
     }
 
     @Operation(summary = "Changes your user photo by id", description = "Changes the account image profile")
+    @CacheEvict(value = {"users", "user"}, key = "#username", allEntries = true)
     @Transactional
     @PatchMapping("/edit/{uuid}")
     public ResponseEntity changePhoto(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid, @Valid @RequestBody UserPhotoDTO dto) {
@@ -98,6 +105,7 @@ public class UserController {
     }
 
     @Operation(summary = "Deactivates your user by id", description = "Turn the user role to DEACTIVATED")
+    @CacheEvict(value = {"users", "user"}, key = "#username", allEntries = true)
     @Transactional
     @DeleteMapping("/deactivate/{uuid}")
     public ResponseEntity deactivateUser(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
@@ -107,6 +115,7 @@ public class UserController {
     }
 
     @Operation(summary = "Removes your user by id", description = "Excludes a user from database")
+    @CacheEvict(value = {"users", "user"}, key = "#username", allEntries = true)
     @Transactional
     @DeleteMapping("/{uuid}")
     public ResponseEntity deleteUser(@Parameter(hidden = true) @RequestHeader("Authorization") String token, @PathVariable UUID uuid) {
