@@ -12,6 +12,6 @@ RUN ./mvnw clean install -DTESTS_RBBTMQ_ADDRESSES=${TESTS_RBBTMQ_ADDRESSES}
 
 FROM openjdk:17-jdk-slim
 
-COPY --from=build ./target/posts-1.0-SNAPSHOT.jar app.jar
+COPY --from=build ./target/posts-1.0.0-SNAPSHOT.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
