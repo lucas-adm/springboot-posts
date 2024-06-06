@@ -1,4 +1,4 @@
-<h3 align="center">Posts</h3>
+<h3 align="center">Posts - <a href="https://github.com/lucas-adm/springboot-posts/releases/tag/1.0.0"><i>alpha</i></a></h3>
 
 <br>
 
@@ -20,7 +20,7 @@
 
 ### Como realizar as requisições ⁉
 
-#### ▶ Faça suas requisições *<a href="https://posts-i9sv.onrender.com/swagger-ui.html">aqui</a>*
+#### ▶ Faça suas requisições *<a href="https://api-srs-posts.onrender.com">aqui</a>*
 
 Para fazer as requisições é necessário estar conectado à uma conta cadastrada, caso não queria se cadastrar, há um conta de demonstração já criada para este propósito, acesse a parte ***users/login*** para mais informações.
 
@@ -36,7 +36,7 @@ Para fazer as requisições é necessário estar conectado à uma conta cadastra
 "email": "email válido",
 "username": "4 a 33 caracteres",
 "password": "4 a 33 caracteres e ao menos 1 letra minúscula, 1 máiuscula e 1 um número.",
-"birthDate": "2001-01-01, deve possuir +12 anos"
+"birthDate": "2001-01-01, deve possuir 12+ anos"
 ```
 
 </details>
@@ -49,8 +49,8 @@ Para fazer as requisições é necessário estar conectado à uma conta cadastra
 > O usuário ***demo*** está permitido à apenas realizar requisições do tipo POST, é recomendado se cadastrar e então se conectar, lembre-se de ativar a conta pelo email.
 
 ```java
-"username":"demo",
-"senha":"Senha123"
+"username":"Demo",
+"senha":"3Tres"
 ```
 
 <div align="center">
