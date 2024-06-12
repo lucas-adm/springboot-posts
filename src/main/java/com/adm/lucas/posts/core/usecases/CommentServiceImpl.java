@@ -22,7 +22,7 @@ public class CommentServiceImpl implements CommentServicePort {
     public Comment comment(String username, UUID uuid, String text) {
         User user = repositoryPort.findUserByUsername(username);
         Post post = repositoryPort.findPostById(uuid);
-        if (post.getStatus() == Status.CLOSED) {
+        if (post.getStatus() == Status.INATIVO) {
             throw new RuntimeException("Este post está fechado.");
         }
         Comment comment = new Comment(user, post, text);

@@ -11,7 +11,7 @@ public class Post {
     private User user;
     private String text;
     private LocalDateTime datePost = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
-    private Status status = Status.OPEN;
+    private Status status = Status.ATIVO;
     private Set<Upvote> upvotes;
     private Set<Comment> comments;
     private int upvoteCount = 0;

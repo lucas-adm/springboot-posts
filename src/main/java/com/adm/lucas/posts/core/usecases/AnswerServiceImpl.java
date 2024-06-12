@@ -23,7 +23,7 @@ public class AnswerServiceImpl implements AnswerServicePort {
     public Answer answer(String username, UUID uuid, String text) {
         User user = repositoryPort.findUserByUsername(username);
         Comment comment = repositoryPort.findCommentById(uuid);
-        if (comment.getPost().getStatus() == Status.CLOSED) {
+        if (comment.getPost().getStatus() == Status.INATIVO) {
             throw new RuntimeException("Este post está fechado.");
         }
         Answer answer = new Answer(user, comment, text);

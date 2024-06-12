@@ -42,7 +42,7 @@ public class PostServiceImpl implements PostServicePort {
         if (!Objects.equals(post.getUser().getUsername(), username)) {
             throw new RuntimeException("Apenas o criador do post pode editar o post.");
         }
-        post.setStatus(Status.CLOSED);
+        post.setStatus(Status.INATIVO);
         repositoryPort.savePost(post);
     }
 

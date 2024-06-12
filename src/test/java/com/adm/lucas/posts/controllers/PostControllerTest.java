@@ -348,7 +348,7 @@ public class PostControllerTest {
         var post = mvc.perform(get("/posts/post/{uuid}", dto.id())).andReturn().getResponse();
         Status status = objectMapper.readValue(post.getContentAsString(), PostDetailDTO.class).status();
 
-        assertThat(status).isEqualTo(Status.CLOSED);
+        assertThat(status).isEqualTo(Status.INATIVO);
     }
 
     @Test

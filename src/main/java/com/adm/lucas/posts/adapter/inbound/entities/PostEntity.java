@@ -28,7 +28,7 @@ public class PostEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status = Status.OPEN;
+    private Status status = Status.ATIVO;
 
     @Column(nullable = false)
     private String text;
