@@ -28,6 +28,12 @@ public class UpvoteServiceImpl implements UpvoteServicePort {
     }
 
     @Override
+    public Boolean getUpvote(String username, UUID uuid) {
+        Upvote upvote = repositoryPort.findUpvoteByUserAndPost(username, uuid);
+        return upvote != null;
+    }
+
+    @Override
     public void remove(String username, UUID uuid) {
         Upvote upvote = repositoryPort.findUpvoteByUserAndPost(username, uuid);
         repositoryPort.removeUpvote(upvote);

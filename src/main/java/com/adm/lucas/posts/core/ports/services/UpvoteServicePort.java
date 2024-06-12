@@ -8,6 +8,8 @@ public interface UpvoteServicePort {
 
     void upvote(String username, UUID uuid);
 
+    Boolean getUpvote(String username, UUID uuid);
+
     void remove(String username, UUID uuid);
 
 }

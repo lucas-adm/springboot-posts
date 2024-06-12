@@ -32,6 +32,13 @@ public class UpvoteController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Get a boolean value by post id", description = "Return true if upvoted or false if not")
+    @GetMapping("/{uuid}")
+    public ResponseEntity<Boolean> getUpvote(@PathVariable UUID uuid, @RequestParam String username) {
+        Boolean upvote = servicePort.getUpvote(username, uuid);
+        return ResponseEntity.ok().body(upvote);
+    }
+
     @Operation(summary = "Remove your upvote by post id", description = "Decrease the number of a Post upvote")
     @Transactional
     @DeleteMapping("/{uuid}")
