@@ -1,15 +1,16 @@
 package com.adm.lucas.posts.adapter.inbound.controllers;
 
-import com.adm.lucas.posts.adapter.inbound.dtos.in.user.UserLoginDTO;
-import com.adm.lucas.posts.adapter.inbound.dtos.in.user.UserPhotoDTO;
-import com.adm.lucas.posts.adapter.inbound.dtos.in.user.UserRegisterDTO;
-import com.adm.lucas.posts.adapter.inbound.dtos.in.user.UserUpdateDTO;
+import com.adm.lucas.posts.adapter.inbound.dtos.in.user.*;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.user.UserDetailDTO;
 import com.adm.lucas.posts.adapter.inbound.dtos.out.user.UserTokenDTO;
 import com.adm.lucas.posts.adapter.outbound.producers.UserProducer;
 import com.adm.lucas.posts.core.domain.User;
 import com.adm.lucas.posts.core.ports.services.UserServicePort;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -39,11 +41,26 @@ public class UserController {
     private final UserServicePort servicePort;
     private final UserProducer producer;
 
-    @Operation(summary = "User login", description = "Validates a user credentials. You can use a Demo User already created: username:demo password:Senha123 Make sure to apply the generated token in the padlock above.")
+    @Operation(summary = "User login", description = "Validates a user credentials. You can use a Demo User already created: username:demo password:3Tres Make sure to apply the generated token in the padlock above.")
     @PostMapping("/login")
     public ResponseEntity<UserTokenDTO> login(@RequestBody @Valid UserLoginDTO dto) {
         String message = servicePort.login(dto.username(), dto.password());
         return ResponseEntity.accepted().body(new UserTokenDTO(message));
+    }
+
+    @Operation(summary = "Send a email to recover reset your password")
+    @PostMapping("/recover")
+    public void recoverAccount(@RequestBody @Valid UserRecoverDTO dto) {
+        String token = servicePort.forgotPassword(dto.email());
+        producer.publishRecoverEmail(dto.email(), token);
+    }
+
+    @Operation(summary = "Reset user password", description = "Use the token sent by email in the parameter.")
+    @PatchMapping("/psswrd")
+    public ResponseEntity setNewPassword(@RequestHeader("Authorization") String token, @RequestBody @Valid UserSetPassword dto) {
+        String email = JWT.decode(token.replace("Bearer ", "")).getSubject();
+        servicePort.changePassword(email, dto.password());
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Get all users", description = "Retrieves a list of all activated users")

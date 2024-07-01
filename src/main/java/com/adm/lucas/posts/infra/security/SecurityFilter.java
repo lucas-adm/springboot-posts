@@ -23,24 +23,35 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     private UserRepository repository;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        var token = recoverToken(request);
-        if (token != null) {
-            var username = tokenService.validateToken(token);
-            var user = repository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-        filterChain.doFilter(request, response);
-    }
-
     private String recoverToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null) {
             return null;
         }
         return authorizationHeader.replace("Bearer ", "");
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        var token = recoverToken(request);
+        if (token != null) {
+            try {
+                var username = tokenService.validateToken(token);
+                var user = repository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
+                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception exception) {
+                try {
+                    var email = tokenService.validateToken(token);
+                    var user = repository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } catch (Exception exception1) {
+                    throw new RuntimeException(exception1);
+                }
+            }
+        }
+        filterChain.doFilter(request, response);
     }
 
 }

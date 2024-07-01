@@ -47,6 +47,18 @@ public class UserServiceImpl implements UserServicePort {
     }
 
     @Override
+    public String forgotPassword(String email) {
+        return repositoryPort.sendToken(email);
+    }
+
+    @Override
+    public void changePassword(String email, String password) {
+        User user = repositoryPort.findUserByEmail(email);
+        user.setPassword(password);
+        repositoryPort.registerUser(user);
+    }
+
+    @Override
     public void changePhoto(UUID uuid, String username, String photo) {
         User user = repositoryPort.findUserById(uuid);
         if (!Objects.equals(user.getUsername(), username)) {

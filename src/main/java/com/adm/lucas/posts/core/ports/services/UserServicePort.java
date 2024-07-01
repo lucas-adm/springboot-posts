@@ -16,6 +16,10 @@ public interface UserServicePort {
 
     void edit(UUID uuid, String username, String newEmail, String newUsername, String newPassword, LocalDate newBirthDate);
 
+    String forgotPassword(String email);
+
+    void changePassword(String email, String password);
+
     void changePhoto(UUID uuid, String username, String photo);
 
     List<User> listAll();

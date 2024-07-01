@@ -17,6 +17,10 @@ public interface UserRepositoryPort {
 
     User findUserById(UUID uuid);
 
+    User findUserByEmail(String email);
+
+    String sendToken(String email);
+
     List<User> findAllByRoleActivated();
 
     void deleteUser(User user);

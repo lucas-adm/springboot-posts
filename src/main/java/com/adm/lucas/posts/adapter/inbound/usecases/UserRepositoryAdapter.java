@@ -83,6 +83,21 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public User findUserByEmail(String email) {
+        UserEntity entity = repository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        return modelMapper.map(entity, User.class);
+    }
+
+    @Override
+    public String sendToken(String email) {
+        UserEntity entity = repository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        if(entity.getRole() != Role.ACTIVATED) {
+            throw new EntityNotFoundException();
+        }
+        return tokenService.generateForgottenPasswordToken(entity);
+    }
+
+    @Override
     public List<User> findAllByRoleActivated() {
         List<UserEntity> entities = repository.findAllByRoleActivated();
         List<User> users = new ArrayList<>();

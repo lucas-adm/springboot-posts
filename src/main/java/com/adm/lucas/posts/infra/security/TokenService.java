@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 @Service
@@ -17,6 +18,10 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    private Instant expirationTime() {
+        return LocalDateTime.now().plusHours(3).toInstant(ZoneOffset.of("-03:00"));
+    }
+
     public String generateToken(UserEntity user) {
         try {
             var algorithm = Algorithm.HMAC256(secret);
@@ -24,6 +29,23 @@ public class TokenService {
                     .withIssuer("Posts")
                     .withSubject(user.getUsername())
                     .withExpiresAt(expirationTime())
+                    .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new RuntimeException("Error while generating token", exception);
+        }
+    }
+
+    private Instant forgottenPasswordTokenExpirationTime() {
+        return LocalDateTime.now().plusMinutes(30).toInstant(ZoneOffset.of("-03:00"));
+    }
+
+    public String generateForgottenPasswordToken(UserEntity user) {
+        try {
+            var algorithm = Algorithm.HMAC256(secret);
+            return JWT.create()
+                    .withIssuer("Posts")
+                    .withSubject(user.getEmail())
+                    .withExpiresAt(forgottenPasswordTokenExpirationTime())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Error while generating token", exception);
@@ -41,10 +63,6 @@ public class TokenService {
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Error while generating token", exception);
         }
-    }
-
-    private Instant expirationTime() {
-        return LocalDateTime.now().plusHours(3).toInstant(ZoneOffset.of("-03:00"));
     }
 
 }
