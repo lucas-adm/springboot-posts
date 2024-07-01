@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserServicePort {
         if (!Objects.equals(user.getUsername(), username)) {
             throw new RuntimeException("Apenas o próprio criador pode editar esta conta.");
         }
-        user.setEmail(newEmail);
+        user.setEmail(newEmail.toLowerCase());
         user.setUsername(newUsername);
         user.setPassword(newPassword);
         user.setBirthDate(newBirthDate);

@@ -30,6 +30,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public void registerUser(User user) {
+        user.setEmail(user.getEmail().toLowerCase());
         if (Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 12) {
             throw new RuntimeException("Usuário precisa ter ao menos 12 anos.");
         }
@@ -47,6 +48,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public void saveUser(User user) {
+        user.setEmail(user.getEmail().toLowerCase());
         if (Period.between(user.getBirthDate(), LocalDate.now()).getYears() < 12) {
             throw new RuntimeException("Usuário precisa ter ao menos 12 anos.");
         }
@@ -90,7 +92,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public String sendToken(String email) {
-        UserEntity entity = repository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        UserEntity entity = repository.findByEmail(email.toLowerCase()).orElseThrow(EntityNotFoundException::new);
         if(entity.getRole() != Role.ACTIVATED) {
             throw new EntityNotFoundException();
         }
